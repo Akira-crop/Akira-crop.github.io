@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Akira's Personal Blog - 分享技术见解和生活感悟">
-    <meta name="keywords" content="博客, 技术, 编程">
-    <title>Akira's Blog - 个人博客</title>
+    <meta name="description" content="Akira 的学习笔记库 - 课程笔记与论文笔记">
+    <meta name="keywords" content="学习笔记, CS61B, Java, 论文笔记, 编程">
+    <title>Akira's Notes - 学习笔记库</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="icon" href="assets/images/favicon.ico">
 </head>
@@ -14,14 +14,13 @@
     <nav class="navbar">
         <div class="container">
             <div class="logo">
-                <a href="/">Akira's Blog</a>
+                <a href="/">Akira's Notes</a>
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" class="active">首页</a></li>
-                <li><a href="#posts">文章</a></li>
+                <li><a href="#posts">笔记</a></li>
                 <li><a href="#tags">标签</a></li>
                 <li><a href="#about">关于</a></li>
-                <li><a href="#contact">联系</a></li>
             </ul>
             <div class="hamburger">
                 <span></span>
@@ -31,24 +30,35 @@
         </div>
     </nav>
 
-    <!-- 首页轮播 -->
+    <!-- 首页 -->
     <section id="home" class="hero">
         <div class="hero-content">
-            <h1>欢迎来到我的博客</h1>
-            <p>分享技术、记录成长、思考人生</p>
-            <button class="cta-button" onclick="document.getElementById('posts').scrollIntoView()">开始阅读</button>
+            <div class="hero-badge">LEARNING_ARCHIVE // v1.0</div>
+            <h1>Akira 的<span class="accent">学习笔记库</span></h1>
+            <p class="hero-subtitle">课程笔记<span class="sep">/</span>论文笔记<span class="sep">/</span>持续更新中</p>
+            <div class="hero-actions">
+                <a class="neon-btn cyan" href="#posts" onclick="filterByCategory('课程笔记'); return false;">课程笔记</a>
+                <a class="neon-btn pink" href="#posts" onclick="filterByCategory('论文笔记'); return false;">论文笔记</a>
+            </div>
         </div>
     </section>
 
-    <!-- 文章列表 -->
+    <!-- 笔记列表 -->
     <section id="posts" class="posts-section">
         <div class="container">
-            <h2>最新文章</h2>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜索文章...">
+            <h2 class="section-title">学习笔记</h2>
+            <div class="filter-bar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索笔记...">
+                </div>
+                <div class="category-filters" id="categoryFilters">
+                    <button class="category-btn active" data-category="全部">全部</button>
+                    <button class="category-btn" data-category="课程笔记">课程笔记</button>
+                    <button class="category-btn" data-category="论文笔记">论文笔记</button>
+                </div>
             </div>
             <div class="posts-grid" id="postsGrid">
-                <!-- 文章卡片将由 JavaScript 动态生成 -->
+                <!-- 笔记卡片由 JavaScript 动态生成 -->
             </div>
         </div>
     </section>
@@ -56,9 +66,9 @@
     <!-- 标签云 -->
     <section id="tags" class="tags-section">
         <div class="container">
-            <h2>标签云</h2>
+            <h2 class="section-title">标签云</h2>
             <div class="tags-cloud" id="tagsCloud">
-                <!-- 标签将由 JavaScript 动态生成 -->
+                <!-- 标签由 JavaScript 动态生成 -->
             </div>
         </div>
     </section>
@@ -66,52 +76,25 @@
     <!-- 关于 -->
     <section id="about" class="about-section">
         <div class="container">
+            <h2 class="section-title">关于</h2>
             <div class="about-content">
-                <div class="about-text">
-                    <h2>关于我</h2>
-                    <p>Hi！👋 我是 Akira，一个热爱编程和技术的开发者。</p>
-                    <p>这个博客记录了我在编程旅途中的思考、学习心得和实践经验。如果我的文章对你有帮助，欢迎分享和评论！</p>
-                    <div class="social-links">
-                        <a href="https://github.com/Akira-crop" target="_blank" title="GitHub">
-                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                            </svg>
-                        </a>
-                        <a href="mailto:your.email@example.com" title="Email">
-                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="about-image">
-                    <div class="avatar-placeholder">
-                        <span>A</span>
-                    </div>
+                <p>这里是我的<span class="highlight">个人学习档案库</span>,用来沉淀两类笔记:跟课学习时的课程笔记,以及读论文时的论文笔记。</p>
+                <p>写笔记的原则:不是抄录,而是把知识整理成有逻辑链条、带自己思考的东西——能讲清楚,才算学会。</p>
+                <div class="social-links">
+                    <a href="https://github.com/Akira-crop" target="_blank" title="GitHub">
+                        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- 联系 -->
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <h2>联系我</h2>
-            <form class="contact-form" id="contactForm">
-                <input type="text" placeholder="您的名字" required>
-                <input type="email" placeholder="您的邮箱" required>
-                <textarea placeholder="您的消息" rows="5" required></textarea>
-                <button type="submit" class="submit-btn">发送消息</button>
-            </form>
-            <p class="form-message" id="formMessage"></p>
         </div>
     </section>
 
     <!-- 页脚 -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Akira's Blog. All rights reserved.</p>
-            <p>Built with ❤️ using HTML, CSS & JavaScript</p>
+            <p>&copy; 2026 <span class="neon">Akira's Notes</span> // Keep learning, keep noting.</p>
         </div>
     </footer>
 
