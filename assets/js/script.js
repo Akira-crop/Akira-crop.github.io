@@ -1,52 +1,22 @@
-// 示例数据 - 你可以替换为实际的文章数据
+// 文章数据
 const blogPosts = [
     {
-        id: 1,
-        title: "JavaScript 高级技巧",
-        excerpt: "深入探讨 JavaScript 的闭包、原型链和异步编程等高级概念...",
-        date: "2024-01-15",
-        tags: ["JavaScript", "编程"],
-        emoji: "💻"
-    },
-    {
         id: 2,
-        title: "如何构建响应式网站",
-        excerpt: "学习使用 CSS Grid 和 Flexbox 创建现代化的响应式设计...",
-        date: "2024-01-10",
-        tags: ["CSS", "Web设计"],
-        emoji: "🎨"
+        title: "CS61B Lecture 2 笔记:类与对象,以及贯穿全讲的一对判断——数据属于谁,行为由谁执行",
+        excerpt: "构造器、this、实例方法 vs 静态方法、实例变量 vs 静态变量……这一讲的语法点全部围绕一对判断展开,最后落到接口与实现的分离。",
+        date: "2026-09-07",
+        tags: ["CS61B", "Java", "面向对象", "学习笔记"],
+        emoji: "🐶",
+        url: "posts/cs61b-lecture-2.html"
     },
     {
-        id: 3,
-        title: "GitHub Pages 部署指南",
-        excerpt: "一步步教你如何使用 GitHub Pages 免费托管你的网站...",
-        date: "2024-01-05",
-        tags: ["GitHub", "部署"],
-        emoji: "🚀"
-    },
-    {
-        id: 4,
-        title: "React Hooks 完全指南",
-        excerpt: "掌握 React Hooks，写出更简洁优雅的函数式组件...",
-        date: "2023-12-28",
-        tags: ["React", "编程"],
-        emoji: "⚛️"
-    },
-    {
-        id: 5,
-        title: "前端性能优化秘诀",
-        excerpt: "从加载、渲染到交互，全方位优化前端应用性能...",
-        date: "2023-12-20",
-        tags: ["性能", "前端"],
-        emoji: "⚡"
-    },
-    {
-        id: 6,
-        title: "Web 安全最佳实践",
-        excerpt: "了解常见的安全漏洞和如何防护你的 Web 应用...",
-        date: "2023-12-15",
-        tags: ["安全", "Web"],
-        emoji: "🔒"
+        id: 1,
+        title: "CS61B Lecture 1 笔记:从已有语言迁移到 Java,真正该建立的是哪几个模型",
+        excerpt: "HelloWorld、编译运行、静态类型……单拆出来都简单,但这一讲的本质是建立三个模型:程序的结构模型、编译运行模型、静态类型模型。",
+        date: "2026-09-07",
+        tags: ["CS61B", "Java", "学习笔记"],
+        emoji: "☕",
+        url: "posts/cs61b-lecture-1.html"
     }
 ];
 
@@ -119,12 +89,12 @@ function filterByTag(tag) {
     document.getElementById('posts').scrollIntoView({ behavior: 'smooth' });
 }
 
-// 查看文章（示例：显示 alert，实际应该跳转到文章详情页）
+// 查看文章：跳转到文章详情页
 function viewPost(id) {
     const post = blogPosts.find(p => p.id === id);
-    alert(`您点击了文章: ${post.title}\n\n这是一个示例，实际应该跳转到文章详情页面。`);
-    // 在真实项目中，可以这样跳转：
-    // window.location.href = `/posts/${post.id}`;
+    if (post && post.url) {
+        window.location.href = post.url;
+    }
 }
 
 // 日期格式化

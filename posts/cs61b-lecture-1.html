@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CS61B Lecture 1 笔记:从已有语言迁移到 Java,真正该建立的是哪几个模型">
+    <title>CS61B Lecture 1 笔记:从已有语言迁移到 Java,真正该建立的是哪几个模型 - Akira's Blog</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="../index.html">Akira's Blog</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html#home">首页</a></li>
+                <li><a href="../index.html#posts" class="active">文章</a></li>
+                <li><a href="../index.html#tags">标签</a></li>
+                <li><a href="../index.html#about">关于</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <article class="article-page">
+        <div class="article-container">
+            <a href="../index.html#posts" class="back-link">&larr; 返回文章列表</a>
+            <header class="article-header">
+                <div class="article-series">CS61B 自学笔记 · Lecture 1</div>
+                <h1>CS61B Lecture 1 笔记:从已有语言迁移到 Java,真正该建立的是哪几个模型</h1>
+                <div class="article-meta">
+                    <span class="post-date">2026年9月7日</span>
+                    <div class="post-tags">
+                        <span class="tag-chip">CS61B</span><span class="tag-chip">Java</span><span class="tag-chip">学习笔记</span>
+                    </div>
+                </div>
+            </header>
+            <div class="article-body">
+<p>课程：UC Berkeley CS61B(Spring 2025),Lecture 1 "Intro, Java"。</p>
+<p>先说一个判断：这一讲的知识点单拆出来都很简单——HelloWorld、变量、while、方法。但官方想让你建立的不是这些语法点，而是三个模型：<strong>Java 程序的结构模型</strong>(代码放在哪、从哪开始执行)、<strong>编译运行模型</strong>(<code>.java</code> 怎么变成运行结果)、<strong>静态类型模型</strong>(编译器在运行前帮你检查什么、又检查不了什么)。</p>
+<p>这篇笔记就按这三条线组织，最后补一节方法和一节风格。有 Python 或其他语言基础的话，重点看每节的对比部分——那才是这一讲真正的新信息。</p>
+<h2>一、前置认知：这门课不教 Java</h2>
+<p>课件里写得很明确：Java 只是工具，课程的目标是数据结构设计、效率分析、大型程序的测试与调试。这决定了它的讲法——语法过得非常快，因为默认你已经会变量、循环、函数、递归。</p>
+<p>这个定位对学习策略有直接影响：如果卡在 Java 语法上，说明该做的是补齐语法(Homework 0A 就是干这个的);如果卡在循环递归本身，那问题不在 Java,得回去练小程序。两种情况用同一种方法(硬跟课程)都会很痛苦。</p>
+<h2>二、结构模型：为什么 Java 程序长这个样子</h2>
+<p>对比最能说明问题。Python:</p>
+<pre class="code-block"><div class="code-lang">python</div><code>print("hello world")</code></pre>
+<p>Java:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("hello world");
+    }
+}</code></pre>
+<p>表面看是"啰嗦",实质是设计取向不同：Java 要求程序员把<strong>代码归属和类型</strong>显式写出来。三行的小程序里这是负担，几千个类的项目里这是刚需——编译器、IDE、其他程序员都靠这些显式信息工作。</p>
+<p>拆解这段代码，有一个理解角度很重要：<strong>入口方法是一份协议，不是一个普通函数。</strong></p>
+<ul>
+<li><code>public class HelloWorld</code>——类是代码的容器；公共类名必须和文件名一致(<code>HelloWorld.java</code>)。</li>
+<li><code>public static void main(String[] args)</code>——JVM 启动时按这个固定签名找入口。<code>static</code> 表示不需要先创建对象就能调用；<code>main</code> 是规定死的名字，改了就不是入口了。</li>
+<li><code>System.out.println</code>——标准输出并换行；<code>print</code> 不换行。</li>
+</ul>
+<p>所以这一层的正确姿势是：把 <code>public static void main(String[] args)</code> 当固定模板先背下来，<code>public</code>、<code>static</code>、类的完整含义后面几讲自然会展开，现在追究只会拖慢进度。</p>
+<p>两个补充认知：</p>
+<ol>
+<li><strong>结构靠 <code>{}</code>,不靠缩进。</strong> 缩进不改变语义，但错误的缩进会让人误判结构——所以风格上缩进依然必须一致。</li>
+<li>"所有代码必须在类里"只是入门近似。Java 源文件还可以声明接口、枚举、记录，但可执行语句确实不能像 Python 那样散落在顶层。</li>
+</ol>
+<h2>三、编译运行模型：两条命令之间发生了什么</h2>
+<pre class="code-block"><div class="code-lang">bash</div><code>javac HelloWorld.java   # 编译:.java → .class(字节码)
+java HelloWorld          # 运行:JVM 加载类的字节码，找 main 执行</code></pre>
+<pre class="code-block"><div class="code-lang">text</div><code>HelloWorld.java  --javac--&gt;  HelloWorld.class  --java/JVM--&gt;  执行</code></pre>
+<p>这条链上每个环节都有值得记住的点：</p>
+<p><strong><code>.class</code> 是字节码，不是机器码，也不是源码。</strong> 它是 JVM 的指令格式——正因为有这个中间层，同一份编译产物才能在任何平台的 JVM 上跑。这就是 "write once, run anywhere" 的实现方式。</p>
+<p><strong><code>.class</code> 不能当保密手段。</strong> 它隐藏了原始文本，但字节码可以反编译。课件专门提了这点，因为"交付 <code>.class</code> 就安全"是个流传很广的误解。</p>
+<p><strong>两个命令的参数形式不一样，而且各有各的道理：</strong></p>
+<ul>
+<li><code>javac HelloWorld.java</code>——编译器处理的是<strong>文件</strong>,所以要带扩展名;</li>
+<li><code>java HelloWorld</code>——启动器加载的是<strong>类</strong>,所以给类名，加 <code>.class</code> 反而错。</li>
+</ul>
+<p>改完代码必须重新 <code>javac</code>,否则 <code>java</code> 跑的还是旧的 <code>.class</code>。</p>
+<p><strong>比记住命令更重要的：三类错误的分层。</strong></p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">错误类型</th><th style="text-align:left">暴露时机</th><th style="text-align:left">例子</th></tr></thead><tbody><tr><td style="text-align:left">编译错误</td><td style="text-align:left">javac 阶段</td><td style="text-align:left">漏分号、类型不匹配</td></tr><tr><td style="text-align:left">运行时错误</td><td style="text-align:left">运行阶段</td><td style="text-align:left">除以零、数组越界</td></tr><tr><td style="text-align:left">逻辑错误</td><td style="text-align:left">能跑但结果错</td><td style="text-align:left">求面积写成长+宽</td></tr></tbody></table></div>
+<p>分层的价值在于调试效率：看到问题先定位它在哪一层，再决定用什么手段。编译错误读编译器报错就行；运行时错误要看异常和程序状态；逻辑错误最隐蔽，只能靠测试和推理。混在一起瞎改是最慢的路径。</p>
+<h2>四、静态类型模型：这一讲的核心</h2>
+<p>Python 允许：</p>
+<pre class="code-block"><div class="code-lang">python</div><code>x = 0
+x = "horse"</code></pre>
+<p>Java 直接拒绝：</p>
+<pre class="code-block"><div class="code-lang">java</div><code>int x = 0;
+x = "horse";  // 编译错误</code></pre>
+<p>要理解静态类型，得先破除一个名字带来的误解：<strong>"静态"说的是检查时机(运行之前),不是"值不能变"。</strong> 值随便变，类型不能变：</p>
+<pre class="code-block"><div class="code-lang">java</div><code>int age = 20;
+age = 21;            // 合法：值变，类型不变
+age = "twenty-one";  // 非法：String 与 int 不兼容</code></pre>
+<p>检查也不只发生在变量赋值上——参数传入、返回值、每个表达式的中间结果，编译器都会核对类型是否兼容。可以说<strong>类型是 Java 里所有代码实体的固有属性</strong>,这是和动态类型语言最本质的思维差异。</p>
+<p><strong>值得想一层的问题：这套约束换来什么?</strong></p>
+<ul>
+<li>换来：大量类型错误在交付前暴露;IDE 能可靠地补全、跳转、重构(因为它静态地知道每个名字的类型);方法签名本身就是可读的接口文档。</li>
+<li>代价：写更多类型声明;初学语法负担重;不加泛型等机制时代码通用性差。</li>
+</ul>
+<p>所以"Java 啰嗦"和"Python 自由"不是聪明和笨的区别，是<strong>把检查成本放在写代码时还是运行时</strong>的权衡。项目越大、参与的人越多，前置检查越划算——这和第二节里 HelloWorld 外壳的道理是同一条逻辑。</p>
+<p><strong>但静态类型的能力边界必须清楚：它保证"类型层面的操作合法",不保证逻辑正确，也不保证运行时不出错。</strong> 一个能编译的反例胜过背十条结论：</p>
+<pre class="code-block"><div class="code-lang">java</div><code>public static int divide(int x, int y) {
+    return x / y;   // 类型完全合法
+}
+// divide(10, 0) 一跑就 ArithmeticException</code></pre>
+<p><strong>表达式也有类型，而且会反直觉。</strong> <code>+</code> 一侧是字符串就变成拼接，且从左向右结合：</p>
+<pre class="code-block"><div class="code-lang">java</div><code>System.out.println(5 + 10 + "!");   // 15!  先算加法，再拼接
+System.out.println("!" + 5 + 10);   // !510 先拼成 "!5",再往后拼</code></pre>
+<p>两行结果不同，因为结合顺序决定了每个 <code>+</code> 先做加法还是先做拼接。这类题考试常出现，但背后的规则其实就一条：先看结合顺序，再看操作数类型。</p>
+<p>几个零散的、容易记错的点，一并记在这：</p>
+<ul>
+<li><code>String</code> 大写(它是类),<code>int</code>/<code>double</code>/<code>boolean</code>/<code>char</code> 小写(基本类型);字符串双引号、字符单引号，<code>"A"</code> 和 <code>'A'</code> 是不同类型。</li>
+<li><code>^</code> 是按位异或，<strong>不是</strong>乘方;乘方用 <code>Math.pow(2, 10)</code>。</li>
+<li><code>int</code> 固定 32 位，范围 <span class="math">-2<sup>31</sup></span> 到 <span class="math">2<sup>31</sup>-1</span>,溢出就是溢出，不会像 Python 那样自动扩精度。</li>
+<li>引用类型比较内容用 <code>.equals()</code>;<code>==</code> 比的是"是不是同一个对象"(完整的引用模型后面讲)。</li>
+</ul>
+<h2>五、控制流：循环的正确打开方式是追踪</h2>
+<p>官方例子 HelloNumbers:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>public class HelloNumbers {
+    public static void main(String[] args) {
+        int x = 0;
+        while (x &lt; 10) {
+            System.out.print(x + " ");
+            x = x + 1;
+        }
+        System.out.println();
+    }
+}</code></pre>
+<p><code>while</code> 的语义一句话：每轮先算条件，true 执行循环体再回头，false 跳出。所以可能执行零次，也可能永不停止(忘了更新变量就是经典的死循环来源)。</p>
+<p>语法本身没有新东西，这一讲真正想教的是方法：<strong>循环程序的本质是"条件—执行—状态更新"的循环，读循环的正确方式是逐轮追踪状态，而不是把整段代码当文字读懂。</strong></p>
+<p>配套练习(输出累计和 <code>0 1 3 6 ... 45</code>)很能说明问题：</p>
+<pre class="code-block"><div class="code-lang">java</div><code>int x = 0;
+int sum = 0;
+while (x &lt; 10) {
+    sum = sum + x;
+    System.out.print(sum + " ");
+    x = x + 1;
+}</code></pre>
+<p>这里 <code>x</code> 和 <code>sum</code> 各代表一个状态：<code>x</code> 是"本轮加哪个数",<code>sum</code> 是"截至目前的累计"。把每轮的状态变化画成表，任何边界问题都无处遁形：</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:right">轮次</th><th style="text-align:right">x</th><th style="text-align:right">更新后 sum</th><th style="text-align:right">输出</th></tr></thead><tbody><tr><td style="text-align:right">1</td><td style="text-align:right">0</td><td style="text-align:right">0</td><td style="text-align:right">0</td></tr><tr><td style="text-align:right">2</td><td style="text-align:right">1</td><td style="text-align:right">1</td><td style="text-align:right">1</td></tr><tr><td style="text-align:right">3</td><td style="text-align:right">2</td><td style="text-align:right">3</td><td style="text-align:right">3</td></tr><tr><td style="text-align:right">4</td><td style="text-align:right">3</td><td style="text-align:right">6</td><td style="text-align:right">6</td></tr></tbody></table></div>
+<p>反过来，while 的经典错误几乎全是状态管理出错：忘更新(死循环)、<code>&lt;</code> 写成 <code>&lt;=</code>(多一轮)、更新写在输出前(序列整体偏移一位)。这些错误靠"读懂代码"很难发现，靠画表一逮一个准。</p>
+<p>另外两个 Java 特有的点：循环/条件表达式的结果<strong>必须是 <code>boolean</code></strong>,不能用 <code>0</code>/<code>1</code> 当真假(这又是静态类型思维);单语句循环体虽然能省略花括号，但风格上应始终保留，否则以后加语句容易埋雷。</p>
+<h2>六、方法：签名即契约</h2>
+<pre class="code-block"><div class="code-lang">java</div><code>public class LargerDemo {
+    /** Returns the larger of x and y. */
+    public static int larger(int x, int y) {
+        if (x &gt; y) {
+            return x;
+        }
+        return y;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(larger(-5, 10));
+    }
+}</code></pre>
+<p>签名 <code>public static int larger(int x, int y)</code> 的每一段：可访问性、归属(类还是对象)、返回类型、名字、参数列表。在静态类型语言里，<strong>这一行就是方法和调用者之间的契约</strong>——输入什么类型、输出什么类型，编译器据此检查每一次调用。</p>
+<p>围绕这份契约，有几个必须分清的概念：</p>
+<p><strong>定义 ≠ 调用，形参 ≠ 实参。</strong> <code>x</code>、<code>y</code> 是方法内部的局部变量，每次调用时由实参的值初始化。所以同一个方法被不同值调用，互不影响。</p>
+<p><strong><code>return</code> 是"给结果 + 立即结束"二合一。</strong> 这解释了为什么 <code>if</code> 里 return 之后，后面的 return 不会执行;也解释了为什么声明了 <code>int</code> 返回类型，<strong>每条可能走完的路径都必须有 return</strong>——少一条，编译器直接拒绝。</p>
+<p><strong><code>println</code> ≠ <code>return</code>。</strong> 前者是副作用(往输出写东西),后者才把结果交给调用者。声明 <code>int</code> 却只打印、或声明 <code>void</code> 却 <code>return 3;</code>,都是初学者的高频错误。</p>
+<p><strong>"Java 只返回一个值"的准确含义</strong>:一次 return 给一个结果，但结果可以是数组或对象，里面装多少数据都行。所以"不能返回多个值"不构成实际限制。</p>
+<p>最后，<code>static</code> 在这里表示"属于类、调用不需对象",和"不可变"没有任何关系——不可变是 <code>final</code> 的事。这个混淆非常普遍，值得单独记。</p>
+<h2>七、代码风格：工程性的最低要求</h2>
+<p>第一讲谈风格只有一条核心：<strong>代码首先写给人读，其次才给机器执行。</strong> 课程后半段项目规模上来之后，难读的代码会让调试成本失控。</p>
+<p>落到可执行的几条：</p>
+<ul>
+<li><strong>命名承载信息。</strong> <code>elapsedSeconds</code> 之于 <code>x</code>,<code>studentCount</code> 之于 <code>n</code>。短名字不是原罪，小范围的 <code>i</code> 完全可以；标准是读者有没有因此丢失信息。</li>
+<li><strong>重复是信号。</strong> 两段大体相同的代码通常意味着该抽方法。重复的真正危害不是长，是"改一处漏一处"。</li>
+<li><strong>注释写意图，不翻译语法。</strong> <code>x = x + 1; // x 加 1</code> 是负资产；命名到位时很多注释根本不必写。而且过时的注释比没注释更危险——它会误导。</li>
+<li><strong>Javadoc 描述对外行为</strong>,不写实现细节：做什么、参数是什么、返回什么。</li>
+</ul>
+<h2>八、这一讲的边界和后续</h2>
+<p>课程主页把 Lecture 1 标成 "Intro, Instance Variables",但实例变量实际属于 Lecture 2。这里只需要建立分类概念，不深入：</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">变量种类</th><th style="text-align:left">声明位置</th><th style="text-align:left">归属</th></tr></thead><tbody><tr><td style="text-align:left">局部变量</td><td style="text-align:left">方法内</td><td style="text-align:left">一次方法调用</td></tr><tr><td style="text-align:left">实例变量</td><td style="text-align:left">类体内、无 <code>static</code></td><td style="text-align:left">每个对象一份</td></tr><tr><td style="text-align:left">类变量</td><td style="text-align:left">类体内、有 <code>static</code></td><td style="text-align:left">类本身，全体共享</td></tr></tbody></table></div>
+<p>回头看就很顺：这一讲的方法之所以都能写成 <code>static</code>,正因为它们只依赖参数、不碰任何对象的状态。下一讲开始创建对象，<code>static</code> 的完整含义自然补上。</p>
+<p>配套动作：Lab 01 装环境(Java/Git/IntelliJ),Homework 0A 补语法(<code>if/else</code>、<code>for</code>、字符串的 <code>length/substring/charAt/equals</code>,注意 <code>substring</code> 左闭右开)。学习方法上课件强调"预测—验证":跑任何示例代码前先手写预测输出，再编译对比——这比反复看视频有效得多。另外记住一个边界：IDE 的红色波浪线是 IDE 的分析提示，不是语言本身；能不能编译，javac 说了算。</p>
+<h2>总结：一张逻辑链</h2>
+<pre class="code-block"><div class="code-lang">code</div><code>结构模型:代码装进类，main 是协议入口
+   ↓
+编译运行模型:javac 生成字节码，JVM 加载执行
+   ↓ (编译器在编译期做的事)
+静态类型模型:类型是所有代码实体的固有属性，运行前完成检查
+   ↓ (检查的边界)
+三类错误:编译 / 运行时 / 逻辑——静态类型只覆盖第一层</code></pre>
+<p>一句话压缩：<strong>Java 要求程序员在运行前显式说明代码结构和类型，编译器利用这些信息提前检查，再由 JVM 执行编译产物。</strong> 第一讲的所有"和 Python 不一样",都能从这句话推出来。</p>
+<hr>
+<p><strong>参考资料(均为官方第一手):</strong></p>
+<ul>
+<li>CS61B Spring 2025 主页:https://sp25.datastructur.es/</li>
+<li>官方教材 Chapter 1:https://cs61b-2.gitbook.io/cs61b-textbook/1.-introduction</li>
+<li>讲课代码 <code>lec1_intro1</code>:https://github.com/Berkeley-CS61B/lectureCode-sp25</li>
+<li>Homework 0A / Lab 01:课程主页内有入口</li>
+</ul>
+
+            </div>
+            <footer class="article-footer">
+                <a href="../index.html#posts" class="back-link">&larr; 返回文章列表</a>
+            </footer>
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Akira's Blog. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

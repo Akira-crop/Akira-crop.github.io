@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CS61B Lecture 2 笔记:类与对象,以及贯穿全讲的一对判断——数据属于谁,行为由谁执行">
+    <title>CS61B Lecture 2 笔记:类与对象,以及贯穿全讲的一对判断——数据属于谁,行为由谁执行 - Akira's Blog</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="../index.html">Akira's Blog</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html#home">首页</a></li>
+                <li><a href="../index.html#posts" class="active">文章</a></li>
+                <li><a href="../index.html#tags">标签</a></li>
+                <li><a href="../index.html#about">关于</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <article class="article-page">
+        <div class="article-container">
+            <a href="../index.html#posts" class="back-link">&larr; 返回文章列表</a>
+            <header class="article-header">
+                <div class="article-series">CS61B 自学笔记 · Lecture 2</div>
+                <h1>CS61B Lecture 2 笔记:类与对象,以及贯穿全讲的一对判断——数据属于谁,行为由谁执行</h1>
+                <div class="article-meta">
+                    <span class="post-date">2026年9月7日</span>
+                    <div class="post-tags">
+                        <span class="tag-chip">CS61B</span><span class="tag-chip">Java</span><span class="tag-chip">面向对象</span><span class="tag-chip">学习笔记</span>
+                    </div>
+                </div>
+            </header>
+            <div class="article-body">
+<p>课程:UC Berkeley CS61B(Spring 2026),Lecture 2 "Defining and Using Classes, Lists"。</p>
+<p>Lecture 1 建立的是"程序怎么组织、怎么运行"的模型;Lecture 2 往前推了一步:<strong>语言自带的 <code>int</code>、<code>double</code> 不够用，程序怎么定义"狗""行星"这样的新类型?</strong> 答案是类。</p>
+<p>这一讲语法点不少——构造器、<code>this</code>、实例方法、静态方法、静态变量、List——但全部围绕一对判断展开:</p>
+<blockquote><strong>这份数据属于谁(每个对象一份，还是全类共享)?这个行为由谁执行(某个具体对象，还是类本身)?</strong></blockquote>
+<p>这两个问题答得出来，<code>static</code> 什么时候该写、什么时候不该写，基本都能自己推导出来，不用背规则。笔记就按这条线组织，最后落到本讲最重要的思想:接口与实现的分离。</p>
+<h2>一、为什么需要类：从散落的变量到绑定的整体</h2>
+<p>不用类，表示两只狗大概是这样:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>int dog1Size = 5;
+int dog2Size = 100;
+
+void makeDogNoise(int size) { ... }</code></pre>
+<p>两只狗还行。一旦每只狗还有名字、年龄、主人，就得靠命名约定维持"哪些变量属于同一只狗"——这种对应关系极其脆弱，本质上是<strong>程序员在用纪律模拟语言本该提供的结构</strong>。</p>
+<p>类做的事情，就是把同一事物的状态和行为绑在一起:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>class Dog {
+    int size;
+
+    Dog(int size) {
+        this.size = size;
+    }
+
+    void makeNoise() {
+        if (size &lt; 10) {
+            IO.println("yip");
+        } else if (size &lt; 30) {
+            IO.println("bark");
+        } else {
+            IO.println("arrooooooo!");
+        }
+    }
+}</code></pre>
+<p>这里有个值得想一层的点:<strong>类定义之后，<code>Dog</code> 就成了和 <code>int</code>、<code>String</code> 平起平坐的类型。</strong> Lecture 1 说"类型是 Java 里所有代码实体的固有属性",现在类型集合可以由程序员自己扩充了——静态类型系统随即开始检查新类型:<code>hugeDog.size = 5;</code> 合法，而 <code>hugeDog.name = "Frank";</code> 编译错误，因为 <code>Dog</code> 没有 <code>name</code> 字段。Java 不允许对象在运行中临时长出类里没声明的东西(这一点和 Python 差别很大——Python 的对象可以随时挂新属性，自由，但也意味着拼错字段名不会有人提醒你)。</p>
+<p>类与对象的关系，一句话:<strong>类是类型定义，对象是运行时的实例。</strong> "图纸与房子"的类比可以帮助入门，但别推太远——类不是"装对象的容器",它定义的是结构和行为规则，每个对象按规则各有一份状态。所以:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>Dog a = new Dog(5);
+Dog b = new Dog(40);
+a.size = 8;   // 只影响 a 所指的对象,b.size 仍是 40</code></pre>
+<p>共享的是字段的<strong>结构</strong>,不是字段的<strong>值</strong>。这个区分是后面理解静态变量的对照组。</p>
+<h2>二、构造器：对象如何开始存在</h2>
+<pre class="code-block"><div class="code-lang">java</div><code>Dog(int size) {
+    this.size = size;
+}</code></pre>
+<p>构造器的特征：名字与类名相同、<strong>没有返回类型(连 <code>void</code> 都不能写)</strong>、在 <code>new</code> 时执行、负责建立初始状态。</p>
+<p>为什么不能有返回类型?可以理解成语言层面的刻意区分：构造器不是"被调用来算一个值"的方法，它是 <code>new</code> 表达式的一部分——<code>new Dog(5)</code> 整体做的事是"创建对象 + 初始化 + 交出这个对象"。一旦允许写返回类型，这个语义就模糊了。顺手记住推论:<code>void Dog(int size)</code> 不是构造器，只是一个恰好和类同名的普通方法。</p>
+<p><strong><code>Dog d = new Dog(5)</code> 是三个动作的合写</strong>,拆开看很有价值:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>Dog d;               // 声明：只有一个类型为 Dog 的变量，还没有对象
+new Dog(20);         // 实例化：对象确实创建了，但没保存引用，之后够不着它
+d = new Dog(5);      // 实例化 + 赋值</code></pre>
+<p>"声明变量 ≠ 创建对象"是初学者最容易塌掉的一块地基。没有 <code>new</code>,就没有新对象。</p>
+<h3>this 与参数遮蔽</h3>
+<p>构造器推荐写成 <code>this.size = size;</code> 而不是换个参数名，原因是同名参数会<strong>遮蔽</strong>字段:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>Dog(int size) {
+    size = size;   // 能编译，但两边都是参数，字段没赋值——危险的逻辑错误
+}</code></pre>
+<p><code>this.size</code> 是"当前正在构造的这个对象的字段",右边的 <code>size</code> 是参数。这个 bug 的阴险之处在于编译器完全放行：类型都对，语义全错。这又一次印证了 Lecture 1 的结论——编译通过只代表类型合法。</p>
+<h2>三、实例方法与 this：每个调用都有一个隐含的接收者</h2>
+<p><code>grow()</code>、<code>makeNoise()</code> 没有 <code>static</code>,是实例方法，调用必须挂在某个对象上:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>Dog maya = new Dog(9);
+maya.grow();       // maya 所指对象的 size 变成 10
+maya.makeNoise();  // 输出 bark</code></pre>
+<p>实例方法执行期间，<code>this</code> 指代<strong>调用它的那个对象</strong>。看这个更完整的例子:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>Dog maxDog(Dog otherDog) {
+    if (otherDog.size &gt; this.size) {
+        return otherDog;
+    }
+    return this;
+}</code></pre>
+<p><code>a.maxDog(b)</code> 执行时:<code>this</code> 是 <code>a</code>,<code>otherDog</code> 是 <code>b</code>。换句话说，<strong>实例方法调用 <code>a.f(b)</code> 里有两个"输入":隐含的接收者 <code>a</code>,和显式的参数 <code>b</code>。</strong> 看懂这一点，<code>this</code> 就没什么神秘的了。</p>
+<p><code>this</code> 什么时候能省?字段访问无歧义时(<code>size</code> 就是 <code>this.size</code>);两种场合不能省：参数遮蔽(见上节),和 <code>return this</code>——这里要的是"当前对象"这个值本身。</p>
+<h2>四、静态方法：没有接收者的类级操作</h2>
+<p>同一个"比较两只狗",也可以写成静态方法:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>static Dog maxDog(Dog d1, Dog d2) {
+    if (d1.size &gt; d2.size) {
+        return d1;
+    }
+    return d2;
+}</code></pre>
+<p>调用:<code>Dog.maxDog(a, b)</code>。</p>
+<p>两种设计的对照:</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left"></th><th style="text-align:left">定义</th><th style="text-align:left">调用</th><th style="text-align:left">隐含对象</th></tr></thead><tbody><tr><td style="text-align:left">实例方法</td><td style="text-align:left"><code>Dog maxDog(Dog other)</code></td><td style="text-align:left"><code>a.maxDog(b)</code></td><td style="text-align:left"><code>this == a</code></td></tr><tr><td style="text-align:left">静态方法</td><td style="text-align:left"><code>static Dog maxDog(Dog a, Dog b)</code></td><td style="text-align:left"><code>Dog.maxDog(a, b)</code></td><td style="text-align:left">无 <code>this</code></td></tr></tbody></table></div>
+<p>关键认知:<strong>静态方法的本质不是"不修改数据",而是"调用时没有隐含的当前对象"。</strong> 由此推出两个结论:</p>
+<ol>
+<li>静态方法不能直接读实例字段——<code>IO.println(size);</code> 编译错误，因为根本回答不了"哪只狗的 size";</li>
+<li>但它<strong>可以</strong>通过显式参数接触对象——<code>static void printSize(Dog d)</code> 完全合法。</li>
+</ol>
+<p>判断一个方法该不该是实例方法，标准问题只有一个:<strong>这个行为是否天然由某个具体对象执行、且需要它的状态?</strong> "这只狗长大一磅"是;"比较两只狗"没有天然执行者，两种设计都成立——区别只在接口表达:<code>Dog.maxDog(a, b)</code> 把它建模为类级工具操作,<code>a.maxDog(b)</code> 建模为"a 与 b 比较"。选哪种取决于哪种更贴合领域语义，而不是"哪个能编译"。</p>
+<p>顺带划清两个边界：</p>
+<ul>
+<li>静态方法不是"全局函数",它仍然属于某个类;<code>Math.round(5.6)</code> 就是典型——四舍五入不需要先 <code>new Math()</code>。</li>
+<li>Java 允许 <code>a.maxDog(a, b)</code> 这样通过实例调静态方法，但这是风格事故：让读者误以为方法依赖接收者。静态成员，用类名访问。</li>
+</ul>
+<h2>五、静态变量：全类一份的共享状态</h2>
+<pre class="code-block"><div class="code-lang">java</div><code>class Dog {
+    int size;                              // 每个对象一份
+    static String binomen = "Canis familiaris";  // 全类共享一份
+}</code></pre>
+<p>和第一节对照着看就清楚了：实例变量是"结构共享、值各有一份",静态变量连值都只有一份——所有对象观察到的是同一个变量。访问用 <code>Dog.binomen</code>,写 <code>maya.binomen</code> 即使能编译也掩盖了共享的事实。</p>
+<p><strong>真正值得展开的是：为什么可变的静态变量危险?</strong> 如果程序的任何角落都能改写它，那么一个函数的行为就可能取决于远处代码曾经做过什么——推理一个类不再只需要看这个类。这本质上是作用域问题：共享范围越大，理解和测试的成本越高。</p>
+<p>所以实践中：本意是常量的，写成 <code>static final String BINOMEN = "..."</code>(<code>final</code> 只能赋值一次，全大写是惯例);确实需要可变共享状态的(比如统计创建了多少对象),不是不能用，但要有明确目的，并把写入位置控制在少数地方。</p>
+<h2>六、两个补丁：public 与 Java 25 入口</h2>
+<p><strong><code>public</code> 现阶段只需一个最小模型</strong>:它是访问权限修饰符，写在类、构造器、字段、方法前，表示可被更广泛的代码访问。两个错误结论都别急着下："public 没作用"(跨类跨包时很重要，只是当前例子体现不出);"字段都该 public"(教学方便而已，真实设计常用 <code>private</code> 保护内部表示——这件事后面会和"接口与实现"那条线汇合)。</p>
+<p><strong>Java 25 简化入口</strong>是 Spring 2026 和旧资料最容易打架的地方:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>void main() {
+    IO.println("hello world");   // 简化写法,2026 课堂常用
+}</code></pre>
+<pre class="code-block"><div class="code-lang">java</div><code>public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("hello world");   // 传统写法,HW 和现实世界的主流
+    }
+}</code></pre>
+<p>两种都要会读。概念没变——程序总要有个入口，只是 Java 25 给初学者提供了更轻的语法。看懂旧资料、在线评测和真实项目，传统写法绕不开。</p>
+<h2>七、List：一个引出整门课中心问题的例子</h2>
+<p>有了对象，自然的需求是"装很多对象"。<code>List</code> 是有序序列：尾部添加、按索引读、删元素、查大小。</p>
+<pre class="code-block"><div class="code-lang">java</div><code>import java.util.ArrayList;
+import java.util.List;
+
+List&lt;String&gt; words = new ArrayList&lt;&gt;();
+words.add("data");
+words.add("structure");
+words.set(0, "Data");
+IO.println(words.get(1));  // structure
+IO.println(words.size());  // 2</code></pre>
+<p>几个速记点：<code>List</code>/<code>ArrayList</code> 在 <code>java.util</code> 包里，需要 <code>import</code>;读取用 <code>get(i)</code> 不是 <code>[]</code>,长度用 <code>size()</code> 不是 <code>length</code>;泛型参数不能是基本类型,<code>List&lt;int&gt;</code> 不行，得 <code>List&lt;Integer&gt;</code>。(2026 课堂先用 Java 4 时代的 raw <code>List</code> 做演示，纯粹为了突出接口和实现的区别，自己的新代码别照抄——raw 类型等于主动关掉编译器的类型检查。)</p>
+<h2>八、接口与实现：本讲思想的高地</h2>
+<pre class="code-block"><div class="code-lang">java</div><code>List&lt;String&gt; words = new ArrayList&lt;&gt;();</code></pre>
+<p>这一行是 Lecture 2 最值得停下来咀嚼的代码。左右两边回答的是两个不同的问题:</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left">层次</th><th style="text-align:left">例子</th><th style="text-align:left">回答的问题</th></tr></thead><tbody><tr><td style="text-align:left">抽象数据类型(接口)</td><td style="text-align:left"><code>List&lt;String&gt;</code></td><td style="text-align:left"><strong>能做什么?</strong> add、get、remove、size……</td></tr><tr><td style="text-align:left">具体实现</td><td style="text-align:left"><code>new ArrayList&lt;&gt;()</code></td><td style="text-align:left"><strong>怎么做到?</strong> 内部用什么结构和算法</td></tr></tbody></table></div>
+<p><code>new List()</code> 编译错误，原因就是 <code>List</code> 只是一份"能力约定",本身没有完整实现。换成 <code>new LinkedList&lt;&gt;()</code>,使用方照样调 <code>add</code>、<code>get</code>、<code>remove</code>——但内部表示和各操作的成本完全不同。</p>
+<p>为什么要分这两层?这条线会直接通到整门课的核心:</p>
+<ol>
+<li><strong>替换实现</strong>:代码只依赖 <code>List</code> 约定，换实现不用大改;</li>
+<li><strong>隐藏细节</strong>:调用者不需要知道数组怎么扩容、链表节点怎么连;</li>
+<li><strong>比较性能</strong>:同一操作在不同实现上成本不同——这正是数据结构课要分析的东西;</li>
+<li>CS61B 后面会亲手实现 <code>SLList</code>、<code>AList</code>,就是在回答"同一个 List 抽象，可以有哪些实现，各自牺牲什么换来什么"。</li>
+</ol>
+<p>但也要给一个边界，别把经验当定律:"变量总声明成接口类型"不绝对成立——如果真需要某个实现独有的操作，就得用具体类型。准确的说法是:<strong>接口降低替换成本，但不保证所有可观察性质(尤其是性能)完全相同。</strong> 数据结构的选择由操作模式决定，不由名字决定——这个原则现在就该建立，复杂度分析的结论表后面再背。</p>
+<h2>九、一次综合追踪：把整讲的机制串起来</h2>
+<pre class="code-block"><div class="code-lang">java</div><code>class Dog {
+    int size;
+    static int dogCount = 0;
+
+    Dog(int size) {
+        this.size = size;
+        dogCount += 1;
+    }
+
+    void grow() {
+        size += 1;
+    }
+
+    static Dog maxDog(Dog a, Dog b) {
+        if (a.size &gt; b.size) { return a; }
+        return b;
+    }
+}
+
+void main() {
+    List&lt;Dog&gt; dogs = new ArrayList&lt;&gt;();
+    Dog x = new Dog(9);
+    Dog y = new Dog(12);
+    dogs.add(x);
+    dogs.add(y);
+    x.grow();
+    Dog larger = Dog.maxDog(dogs.get(0), dogs.get(1));
+    IO.println(larger.size);
+    IO.println(Dog.dogCount);
+}</code></pre>
+<p>追踪：<code>x</code> 的狗 <code>size=9</code>,共享计数变 1;<code>y</code> 的狗 <code>size=12</code>,计数变 2;两个对象进 List;<code>x.grow()</code> 把第一只改成 10;<code>get(0)</code> 取出 10、<code>get(1)</code> 取出 12,静态方法返回第二只——输出 <code>12</code> 和 <code>2</code>。</p>
+<p>这段代码用到了本讲几乎所有机制：实例变量(每只狗自己的 size)、静态变量(共享的 dogCount)、构造器里的 <code>this</code>、实例方法、静态方法、接口声明 + 实现实例化。注意还有一个被暂时按下不表的问题:<code>x.grow()</code> 之后，为什么从 List 里 <code>get(0)</code> 取出来的也是 10?因为变量和 List 里存的都是<strong>引用</strong>,不是对象副本——这是 Lecture 3 的主题，也是理解 <code>null</code>、别名和对象共享修改的钥匙。</p>
+<h2>总结：一张逻辑链</h2>
+<pre class="code-block"><div class="code-lang">code</div><code>为什么需要类:内置类型不够 → 程序员自定义类型，状态与行为绑定
+   ↓
+对象如何诞生:new 创建 + 构造器初始化(this 区分字段与参数)
+   ↓
+行为由谁执行:实例方法有隐含接收者 this;静态方法没有 → 属于类
+   ↓
+数据属于谁:实例变量每对象一份;静态变量全类共享(可变共享状态慎用)
+   ↓
+抽象与实现分离:List 约定能力,ArrayList/LinkedList 提供机制
+   ↓ (通往整门课)
+同一抽象的不同实现，正确性/性能如何取舍——数据结构课的中心问题</code></pre>
+<p>一句话压缩:<strong>类让程序员定义新类型；实例成员属于对象、静态成员属于类；<code>List</code> 与 <code>ArrayList</code> 的分离则第一次展示了"约定能力"与"提供机制"可以独立变化。</strong> 全讲的语法都能从"数据属于谁、行为由谁执行"这两个问题推出来。</p>
+<hr>
+<p><strong>参考资料(均为官方第一手):</strong></p>
+<ul>
+<li>CS61B Spring 2026 主页:https://sp26.datastructur.es/</li>
+<li>官方教材 Chapter 2:https://cs61b-2.gitbook.io/cs61b-textbook-spring-2026/2.-defining-and-using-classes</li>
+<li>讲课代码 <code>lec2_intro2</code>(Dog/DogInvestigator/ListDemo):https://github.com/Berkeley-CS61B/lectureCode-sp26</li>
+<li>Discussion 2、HW2:课程主页内有入口</li>
+</ul>
+
+            </div>
+            <footer class="article-footer">
+                <a href="../index.html#posts" class="back-link">&larr; 返回文章列表</a>
+            </footer>
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Akira's Blog. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
