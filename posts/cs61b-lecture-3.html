@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CS61B Lecture 3 笔记:List/Array/Map 只是铺垫,引用模型才是这一讲的本体">
+    <title>CS61B Lecture 3 笔记:List/Array/Map 只是铺垫,引用模型才是这一讲的本体 - Akira's Notes</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="../index.html">Akira's Notes</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html#home">首页</a></li>
+                <li><a href="../index.html#posts" class="active">笔记</a></li>
+                <li><a href="../index.html#tags">标签</a></li>
+                <li><a href="../index.html#about">关于</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <article class="article-page">
+        <div class="article-container">
+            <a href="../index.html#posts" class="back-link">&larr; 返回笔记列表</a>
+            <header class="article-header">
+                <div class="article-series">CS61B 自学笔记 · Lecture 3</div>
+                <h1>CS61B Lecture 3 笔记:List/Array/Map 只是铺垫,引用模型才是这一讲的本体</h1>
+                <div class="article-meta">
+                    <span class="post-date">2026年9月8日</span>
+                    <div class="post-tags">
+                        <span class="tag-chip">CS61B</span><span class="tag-chip">Java</span><span class="tag-chip">引用</span><span class="tag-chip">数据结构</span><span class="tag-chip">学习笔记</span>
+                    </div>
+                </div>
+            </header>
+            <div class="article-body">
+<p>课程:UC Berkeley CS61B(Fall 2026),Lecture 3 "Lists, Arrays, Maps, References"。</p>
+<p>这一讲表面上学三种容器(List、数组、Map)加一堆 API,但课程编排的重心其实在后半:<strong>变量里到底存的是什么?</strong> 上一讲留过一个悬念——<code>x.grow()</code> 之后,为什么从 List 里 <code>get(0)</code> 取出来的对象也变了?这一讲就是揭晓答案的时候。</p>
+<p>整讲可以压缩成一条规则,课程叫它 <strong>Golden Rule of Equals(GRoE)</strong>:</p>
+<blockquote><strong>赋值复制的是变量中保存的值。对引用类型,这个值是"对象引用",不是对象本身。</strong></blockquote>
+<p>笔记分两部分:前半快速过三种容器(重点是选型逻辑,不是 API 清单),后半把引用模型彻底拆开——GRoE、别名、参数传递、二维数组,全部从这一条规则推出来。</p>
+<h2>一、三种容器:先建立选型直觉</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:left"></th><th style="text-align:left">核心特点</th><th style="text-align:left">访问方式</th><th style="text-align:left">长度</th></tr></thead><tbody><tr><td style="text-align:left"><code>List&lt;T&gt;</code></td><td style="text-align:left">有序、动态增长</td><td style="text-align:left"><code>list.get(i)</code></td><td style="text-align:left">可变</td></tr><tr><td style="text-align:left"><code>T[]</code></td><td style="text-align:left">有序、固定长度</td><td style="text-align:left"><code>array[i]</code></td><td style="text-align:left">创建后固定</td></tr><tr><td style="text-align:left"><code>Map&lt;K,V&gt;</code></td><td style="text-align:left">key → value</td><td style="text-align:left"><code>map.get(key)</code></td><td style="text-align:left">可变</td></tr></tbody></table></div>
+<p>一个统一的看法:List 和数组都是 <code>整数索引 → 值</code> 的映射,Map 只是把索引从整数推广到任意类型(<code>String → Integer</code>、<code>Character → ParticleFlavor</code>)。所以选型规则很自然:</p>
+<pre class="code-block"><div class="code-lang">text</div><code>顺序 + 长度会变 → List
+顺序 + 长度固定 → Array
+按 key 查值    → Map</code></pre>
+<p>"List 动态、数组固定"的差异在实战里直接决定代码结构。比如"从列表筛出正数返回数组":一开始不知道结果有几个,只能先用 List 收集,数量确定后再建定长数组——这个两段式写法就是两种容器特性的直接产物。</p>
+<h2>二、泛型:又一处"限制换安全"</h2>
+<p>老式 raw <code>List</code> 的问题是编译器只能把元素当 <code>Object</code>,<code>list.get(0)</code> 取出来不敢直接赋给 <code>String</code>——因为列表里理论上什么都能塞。泛型解决的就是这个:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>List&lt;String&gt; animals = new ArrayList&lt;&gt;();
+animals.add("cat");
+String first = animals.get(0);  // 编译器知道元素是 String
+animals.add(123);               // 编译错误,在写代码时就被拦住</code></pre>
+<p>值得和 Lecture 1 串起来想:这和静态类型是同一种设计哲学——<strong>好的抽象通过限制合法状态来降低程序复杂度。</strong> Python 的 <code>["cat", 3, True]</code> 很自由,但"这个列表永远只装字符串"这种约束,靠脑子记不如交给编译器维护。类型系统不是敌人,是替你记事的工具。</p>
+<p>两个具体坑:</p>
+<ul>
+<li><strong><code>List&lt;int&gt;</code> 不存在。</strong> 泛型参数不能是基本类型,要用包装类 <code>List&lt;Integer&gt;</code>。<code>int ↔ Integer</code> 的转换(boxing/unboxing)Java 会自动做,平时几乎无感,但写类型参数时必须写 <code>Integer</code>。</li>
+<li><strong>三个"长度"写法各不同</strong>,混用是高频错误:<code>array.length</code>(字段)、<code>list.size()</code>(方法)、<code>string.length()</code>(方法)。</li>
+</ul>
+<p>Map 这边记三点:key 唯一(重复 <code>put</code> 同 key 是覆盖不是并存);<code>Map&lt;K, List&lt;V&gt;&gt;</code> 这种嵌套泛型从里向外读;<code>Map.of(...)</code> 创建的是<strong>不可修改的 Map</strong>——但注意一个精细的边界:<code>Map</code> 不可修改 ≠ 里面的对象不可修改,<code>m.get(1).lifespan = 5;</code> 依然合法,因为映射结构没变,变的是对象的内部状态。这个区分其实就是引用思维的第一次热身。</p>
+<h2>三、引用模型:变量是盒子,但盒子里装的不一定是货</h2>
+<p>CS61B 用盒子模型:每个变量是一个盒子。基本类型(int、double、boolean、char 等 8 种)的盒子里<strong>直接装值</strong>:</p>
+<pre class="code-block"><div class="code-lang">text</div><code>int x = 5;        x ┌───┐
+                    │ 5 │
+                    └───┘</code></pre>
+<p>其余几乎所有类型——<code>String</code>、自定义类、<code>List</code>、<code>Map</code>,以及<strong>数组</strong>——都是引用类型,盒子里装的是<strong>指向对象的引用</strong>:</p>
+<pre class="code-block"><div class="code-lang">text</div><code>Walrus a = new Walrus(1000, 8.3);
+
+a ┌───────────┐
+  │ reference │────→ ┌───────────────┐
+  └───────────┘      │ Walrus object │
+                     │ weight = 1000 │
+                     └───────────────┘</code></pre>
+<p><strong>变量和对象是两个东西</strong>,这是全部后续推理的地基。(一个严谨性备注:课件常把引用画成内存地址,那是教学模型。Java 不允许像 C 指针那样直接操作地址,JVM 甚至可能移动对象。稳妥的理解是:引用是一个"能定位到某个对象"的值,画成箭头就够了。)</p>
+<p>顺带一个和 Python 的对比:Python 里"万物皆引用",赋值天然就是别名,大家稀里糊涂也这么用过来了;Java 则把世界劈成两半——8 种基本类型一套规则,引用类型另一套规则。<strong>正因为两套并存,Java 要求你时刻清楚手里的变量属于哪一边</strong>,这也是引用问题在 Java 里显得比在 Python 里更"坑"的原因:不是 Java 更怪,是它把差异显性化了。</p>
+<h2>四、GRoE:一条规则,两种后果</h2>
+<p><strong><code>b = a</code> 永远只做一件事:把 <code>a</code> 盒子里当前保存的值,复制到 <code>b</code> 的盒子里。</strong></p>
+<p>基本类型,复制的是数值,之后各走各路:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>int x = 5;
+int y = x;
+x = 2;   // y 还是 5,互不影响</code></pre>
+<p>引用类型,复制的是引用——于是两个变量指向<strong>同一个对象</strong>,这叫<strong>别名(aliasing)</strong>:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>Walrus a = new Walrus(1000, 8.3);
+Walrus b = a;      // 复制引用,不复制对象!此刻:两个变量,一个对象
+b.weight = 5;      // 通过 b 改对象
+// a.weight 也是 5——不是"a 被同步了",是 a、b 一直看着同一只海象</code></pre>
+<p>Lecture 2 的悬念在这里正式解开:<code>x.grow()</code> 之后 <code>dogs.get(0)</code> 取出的对象也变了,因为变量和 List 里存的都是引用,从头到尾就只有一只狗。</p>
+<h2>五、比 GRoE 更进一步:分清"修改变量"和"修改对象"</h2>
+<p>别名能解释"为什么改 b 影响 a",但解释不了下面这个:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>Dog a = new Dog(10);
+Dog b = a;
+b = new Dog(20);   // a 纹丝不动,仍指向 weight=10 的那只</code></pre>
+<p>同样是 <code>b</code>,为什么 <code>b.weight = 30</code> 影响 <code>a</code>,<code>b = new Dog(20)</code> 却不影响?因为这两句<strong>修改的根本不是同一层东西</strong>:</p>
+<ul>
+<li><code>b = new Dog(20)</code> —— 修改的是<strong>变量 b</strong>(盒子里换了一个引用),跟 a 的盒子无关;</li>
+<li><code>b.weight = 30</code> —— 修改的是 <strong>b 指向的对象</strong>(顺着箭头过去改对象内部),而 a 的箭头也指着它。</li>
+</ul>
+<p>遇到任何引用题,先问两个问题就能秒杀绝大多数:<strong>①变量是基本类型还是引用类型?②这句代码改的是变量本身,还是变量指向的对象?</strong></p>
+<h2>六、参数传递:Java 永远是 pass-by-value</h2>
+<p>这是本讲最容易以讹传讹的地方,直接给结论:<strong>Java 只有 pass-by-value,没有例外。</strong> 方法调用时,实参盒子里保存的值被复制给形参的盒子——和赋值的 GRoE 是同一条规则,所以引用模型天然覆盖参数传递。三个经典情形:</p>
+<p><strong>① 基本类型参数:改不动调用者。</strong></p>
+<pre class="code-block"><div class="code-lang">java</div><code>static void decrement(int x) { x = x - 1; }
+int n = 10;
+decrement(n);   // n 仍是 10:形参 x 是独立盒子,复制了数值 10</code></pre>
+<p><strong>② 引用参数 + 改对象:调用者看得见。</strong></p>
+<pre class="code-block"><div class="code-lang">java</div><code>static void grow(Dog d) { d.weight += 10; }
+Dog dog = new Dog(20);
+grow(dog);      // dog.weight 变成 30:形参 d 复制了引用,两个变量指向同一只狗</code></pre>
+<p><strong>③ 引用参数 + 改变量:调用者看不见(试金石)。</strong></p>
+<pre class="code-block"><div class="code-lang">java</div><code>static void replace(Dog d) { d = new Dog(999); }
+Dog dog = new Dog(20);
+replace(dog);   // dog.weight 仍是 20!</code></pre>
+<p>③是检验"Java 不是 pass-by-reference"的标准题:如果真是按引用传递,<code>d = new Dog(999)</code> 应该能让 <code>dog</code> 换指向。实际不能——因为复制的只是引用值,<code>d</code> 换指向只动了形参自己的盒子。<strong>②生效、③失效,恰好共同证明:复制的是值,只不过这个值恰好是引用。</strong></p>
+<h2>七、null、默认值与两个"没有对象"的区别</h2>
+<p>引用可以"不指向任何对象",写作 <code>null</code>,对 <code>null</code> 调方法就是著名的 <code>NullPointerException</code>。但有两个状态要分清:</p>
+<ul>
+<li><strong>局部变量 <code>Dog d;</code></strong> —— 不是 <code>null</code>,是"未初始化",直接使用会被编译器拦下;</li>
+<li><strong>对象的实例字段</strong> —— 会自动默认初始化,引用类型字段默认就是 <code>null</code>。</li>
+</ul>
+<p>一个是编译器帮你挡住的错误,一个是合法但运行时才炸的状态,排查 NPE 时这个区分很有用。</p>
+<h2>八、数组:引用模型的两个推论</h2>
+<p><strong>推论一:数组也是引用类型,<code>==</code> 比的是引用不是内容。</strong></p>
+<pre class="code-block"><div class="code-lang">java</div><code>int[] a = {1, 2};
+int[] b = {1, 2};
+a == b   // false!两个数组两个对象,引用不同</code></pre>
+<p>比内容要用 <code>Arrays.equals(a, b)</code>。(这和 Lecture 1 说的"字符串比较用 <code>.equals()</code>"是同一条规则的两个实例——引用类型的 <code>==</code> 永远比身份。)</p>
+<p><strong>推论二:二维数组不是矩形表格,是"数组引用的数组"。</strong></p>
+<p><code>int[][]</code> 的准确读法是:元素类型为 <code>int[]</code> 的数组。外层数组的每个格子装的是一个内层数组的引用。这一个模型同时解释三个现象:</p>
+<pre class="code-block"><div class="code-lang">java</div><code>int[][] x = new int[3][];
+x[0] = new int[1];
+x[1] = new int[5];     // ragged array:每行长度可以不同,因为每行是独立数组
+
+int[] row = x[1];
+row[0] = 99;           // x[1][0] 也变成 99:row 复制的是行引用,又是别名
+
+Particle[][] ps = new Particle[3][4];
+// 没有创建 12 个 Particle!只创建了数组和 12 个 null 格子
+// 想放粒子,得逐个 new:ps[0][0] = new Particle(...)</code></pre>
+<p>第三条是最常见的初学误区:<code>new Particle[10]</code> 创建的是 10 个<strong>装引用的空位</strong>,不是 10 个对象——容器和内容的区别,又一次回到"变量和对象是两个东西"。</p>
+<h2>九、综合追踪:四行代码用完全部机制</h2>
+<pre class="code-block"><div class="code-lang">java</div><code>public static void change(Cat c, int x) {
+    c.weight += 5;
+    x += 5;
+    c = new Cat(100);
+    c.weight += 1;
+}
+
+Cat cat = new Cat(10);
+int n = 10;
+change(cat, n);
+// cat.weight = ?   n = ?</code></pre>
+<p>逐步推:</p>
+<ol>
+<li>参数复制:<code>c</code> 与 <code>cat</code> 指向同一只猫(别名),<code>x</code> 独立复制了 <code>10</code>;</li>
+<li><code>c.weight += 5</code> —— 改<strong>对象</strong>,共享的猫变成 15(情形②);</li>
+<li><code>x += 5</code> —— 改<strong>形参变量</strong>,<code>n</code> 不受影响,仍是 10(情形①);</li>
+<li><code>c = new Cat(100)</code> —— 改<strong>形参变量</strong>的指向,<code>cat</code> 不动(情形③);</li>
+<li><code>c.weight += 1</code> —— 新猫变 101,但没有调用者的引用指着它,白改。</li>
+</ol>
+<p>输出:<code>15</code> 和 <code>10</code>。能独立推出这道题,引用模型就算过关了。</p>
+<h2>总结:一张逻辑链</h2>
+<pre class="code-block"><div class="code-lang">text</div><code>三种容器(List 动态 / Array 固定 / Map 按键查值)
+   ↓ 它们都是对象,变量存的都是——
+引用:变量与对象分离,盒子里装的是箭头
+   ↓ GRoE:赋值只复制盒子里的值
+别名:两个变量指向同一对象(改对象,人人可见)
+   ↓ 区分"修改变量"与"修改对象"
+参数传递 = 赋值的特例 → Java 永远 pass-by-value
+   ↓ 数组也是引用类型
+二维数组 = 引用的数组(ragged、行别名、null 空位全部可推)</code></pre>
+<p>一句话压缩:<strong>赋值和参数传递都只复制变量中保存的值——基本类型复制数值所以互不影响,引用类型复制箭头所以共享对象;这一讲的每个"奇怪现象",都是这条规则的推论。</strong></p>
+<hr>
+<p><strong>参考资料(均为官方第一手):</strong></p>
+<ul>
+<li>CS61B Fall 2026 主页:https://fa26.datastructur.es/</li>
+<li>Lecture 3 Slides:https://docs.google.com/presentation/d/1N01uiAblWZu5DePHTreIYfyuCd_Ck1QChgoNQhun1II/edit</li>
+<li>讲课代码 <code>lec3_intro3</code>:https://github.com/Berkeley-CS61B/lectureCode-fa26</li>
+<li>2026 官方教材 Chapter 3:https://cs61b-2.gitbook.io/cs61b-textbook-fall-2026/3.-references-recursion-and-lists</li>
+<li>Discussion 01 / Lab 2 / Project 0:课程主页内有入口</li>
+</ul>
+
+            </div>
+            <footer class="article-footer">
+                <a href="../index.html#posts" class="back-link">&larr; 返回笔记列表</a>
+            </footer>
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Akira's Notes. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

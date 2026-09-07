@@ -2,6 +2,16 @@
 // category 可选值:课程笔记 / 论文笔记(新增分类时,在 index.html 的 category-filters 里加对应按钮即可)
 const blogPosts = [
     {
+        id: 3,
+        title: "CS61B Lecture 3 笔记:List/Array/Map 只是铺垫,引用模型才是这一讲的本体",
+        excerpt: "为什么 b = a 之后改 b 会影响 a?Java 到底是传值还是传引用?二维数组为什么可以每行长度不同?全部从一条 Golden Rule of Equals 推出来。",
+        date: "2026-09-08",
+        category: "课程笔记",
+        tags: ["CS61B", "Java", "引用", "数据结构", "学习笔记"],
+        emoji: "🦭",
+        url: "posts/cs61b-lecture-3.html"
+    },
+    {
         id: 2,
         title: "CS61B Lecture 2 笔记:类与对象,以及贯穿全讲的一对判断——数据属于谁,行为由谁执行",
         excerpt: "构造器、this、实例方法 vs 静态方法、实例变量 vs 静态变量……这一讲的语法点全部围绕一对判断展开,最后落到接口与实现的分离。",
