@@ -2,6 +2,16 @@
 // category 可选值:课程笔记 / 论文笔记(新增分类时,在 index.html 的 category-filters 里加对应按钮即可)
 const blogPosts = [
     {
+        id: 4,
+        title: "《置身事内》读书笔记(一):中国政府这台机器是怎么组织起来的",
+        excerpt: "五级架构、央地关系、条块分割——第一章的两张图纸。判断任何一级政府的真实权力,只需问:人事权和财政权在谁手里。",
+        date: "2026-09-09",
+        category: "读书笔记",
+        tags: ["置身事内", "经济学", "中国政府", "读书笔记"],
+        emoji: "🏛️",
+        url: "posts/zhishenshinei-1.html"
+    },
+    {
         id: 3,
         title: "CS61B Lecture 3 笔记:List/Array/Map 只是铺垫,引用模型才是这一讲的本体",
         excerpt: "为什么 b = a 之后改 b 会影响 a?Java 到底是传值还是传引用?二维数组为什么可以每行长度不同?全部从一条 Golden Rule of Equals 推出来。",
