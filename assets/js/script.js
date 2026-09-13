@@ -1,58 +1,22 @@
-// 笔记数据
-// category 可选值:课程笔记 / 论文笔记(新增分类时,在 index.html 的 category-filters 里加对应按钮即可)
-const blogPosts = [
-    {
-        id: 4,
-        title: "《置身事内》读书笔记(一):中国政府这台机器是怎么组织起来的",
-        excerpt: "五级架构、央地关系、条块分割——第一章的两张图纸。判断任何一级政府的真实权力,只需问:人事权和财政权在谁手里。",
-        date: "2026-09-09",
-        category: "读书笔记",
-        tags: ["置身事内", "经济学", "中国政府", "读书笔记"],
-        emoji: "🏛️",
-        url: "posts/zhishenshinei-1.html"
-    },
-    {
-        id: 3,
-        title: "CS61B Lecture 3 笔记:List/Array/Map 只是铺垫,引用模型才是这一讲的本体",
-        excerpt: "为什么 b = a 之后改 b 会影响 a?Java 到底是传值还是传引用?二维数组为什么可以每行长度不同?全部从一条 Golden Rule of Equals 推出来。",
-        date: "2026-09-08",
-        category: "课程笔记",
-        tags: ["CS61B", "Java", "引用", "数据结构", "学习笔记"],
-        emoji: "🦭",
-        url: "posts/cs61b-lecture-3.html"
-    },
-    {
-        id: 2,
-        title: "CS61B Lecture 2 笔记:类与对象,以及贯穿全讲的一对判断——数据属于谁,行为由谁执行",
-        excerpt: "构造器、this、实例方法 vs 静态方法、实例变量 vs 静态变量……这一讲的语法点全部围绕一对判断展开,最后落到接口与实现的分离。",
-        date: "2026-09-07",
-        category: "课程笔记",
-        tags: ["CS61B", "Java", "面向对象", "学习笔记"],
-        emoji: "🐶",
-        url: "posts/cs61b-lecture-2.html"
-    },
-    {
-        id: 1,
-        title: "CS61B Lecture 1 笔记:从已有语言迁移到 Java,真正该建立的是哪几个模型",
-        excerpt: "HelloWorld、编译运行、静态类型……单拆出来都简单,但这一讲的本质是建立三个模型:程序的结构模型、编译运行模型、静态类型模型。",
-        date: "2026-09-07",
-        category: "课程笔记",
-        tags: ["CS61B", "Java", "学习笔记"],
-        emoji: "☕",
-        url: "posts/cs61b-lecture-1.html"
-    }
-];
+// 笔记数据:由 tools/convert.js 生成的 assets/js/posts-data.js 提供
+// 新增笔记 -> 改 tools/convert.js 的 posts 数组 -> 重新运行 node tools/convert.js
+const blogPosts = (window.ALL_POSTS || [])
+    .slice()
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
-// 筛选状态:分类 + 搜索词联合过滤
+// 筛选状态:分类 + 系列 + 搜索词联合过滤
 const filterState = {
     category: "全部",
+    collection: "全部系列",
     query: ""
 };
 
-// 初始化博客
+// 初始化
 document.addEventListener('DOMContentLoaded', () => {
     applyFilters();
+    renderStats();
     renderTags();
+    renderSeriesFilters();
     setupSearch();
     setupCategoryFilters();
     setupNavigation();
@@ -63,19 +27,22 @@ document.addEventListener('DOMContentLoaded', () => {
 function applyFilters() {
     const filtered = blogPosts.filter(post => {
         const matchCategory = filterState.category === "全部" || post.category === filterState.category;
+        const matchSeries = filterState.collection === "全部系列" || post.collection === filterState.collection;
         const q = filterState.query;
         const matchQuery = !q ||
             post.title.toLowerCase().includes(q) ||
-            post.excerpt.toLowerCase().includes(q) ||
+            (post.excerpt || '').toLowerCase().includes(q) ||
             post.tags.some(tag => tag.toLowerCase().includes(q));
-        return matchCategory && matchQuery;
+        return matchCategory && matchSeries && matchQuery;
     });
     renderPosts(filtered);
+    updateResultCount(filtered.length);
 }
 
 // 渲染笔记卡片
 function renderPosts(posts) {
     const postsGrid = document.getElementById('postsGrid');
+    if (!postsGrid) return;
 
     if (posts.length === 0) {
         postsGrid.innerHTML = '<div class="no-posts">// 暂无匹配的笔记</div>';
@@ -83,21 +50,72 @@ function renderPosts(posts) {
     }
 
     postsGrid.innerHTML = posts.map(post => `
-        <div class="post-card" onclick="viewPost(${post.id})">
+        <div class="post-card" onclick="viewPost('${post.slug}')">
             <div class="post-image">
                 <span class="post-category">${post.category}</span>
-                ${post.emoji}
+                ${post.emoji || '📄'}
             </div>
             <div class="post-content">
-                <div class="post-date">${formatDate(post.date)}</div>
+                <div class="post-meta-line">
+                    <span class="post-date">${formatDate(post.date)}</span>
+                    <span class="post-collection">${post.collection || ''}</span>
+                </div>
                 <h3 class="post-title">${post.title}</h3>
-                <p class="post-excerpt">${post.excerpt}</p>
+                <p class="post-excerpt">${post.excerpt || ''}</p>
                 <div class="post-tags">
                     ${post.tags.map(tag => `<span class="tag-chip">${tag}</span>`).join('')}
                 </div>
             </div>
         </div>
     `).join('');
+}
+
+// 结果计数
+function updateResultCount(n) {
+    const box = document.getElementById('resultCount');
+    if (!box) return;
+    const parts = [];
+    if (filterState.category !== "全部") parts.push(filterState.category);
+    if (filterState.collection !== "全部系列") parts.push(filterState.collection);
+    if (filterState.query) parts.push('"' + filterState.query + '"');
+    box.textContent = parts.length
+        ? `// ${parts.join(' · ')} —— 匹配 ${n} 篇`
+        : `// 共 ${n} 篇笔记`;
+}
+
+// 首页统计
+function renderStats() {
+    const box = document.getElementById('heroStats');
+    if (!box) return;
+    const categories = new Set(blogPosts.map(p => p.category));
+    const collections = new Set(blogPosts.map(p => p.collection).filter(Boolean));
+    const latest = blogPosts.reduce((a, p) => (a > p.date ? a : p.date), '');
+    box.innerHTML = `
+        <div class="stat"><span class="stat-num">${blogPosts.length}</span><span class="stat-label">篇笔记</span></div>
+        <div class="stat"><span class="stat-num">${collections.size}</span><span class="stat-label">个系列</span></div>
+        <div class="stat"><span class="stat-num">${categories.size}</span><span class="stat-label">个分类</span></div>
+        <div class="stat"><span class="stat-num">${latest || '--'}</span><span class="stat-label">最近更新</span></div>
+    `;
+}
+
+// 渲染系列筛选
+function renderSeriesFilters() {
+    const box = document.getElementById('seriesFilters');
+    if (!box) return;
+    const names = Array.from(new Set(blogPosts.map(p => p.collection).filter(Boolean)));
+    if (names.length < 2) return;
+    box.innerHTML = ['全部系列'].concat(names)
+        .map(name => `<button class="series-btn${name === '全部系列' ? ' active' : ''}" data-series="${name}">${name}</button>`)
+        .join('');
+
+    box.querySelectorAll('.series-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            box.querySelectorAll('.series-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterState.collection = btn.dataset.series;
+            applyFilters();
+        });
+    });
 }
 
 // 渲染标签云
@@ -108,6 +126,7 @@ function renderTags() {
     });
 
     const tagsCloud = document.getElementById('tagsCloud');
+    if (!tagsCloud) return;
     tagsCloud.innerHTML = Array.from(allTags).map(tag => `
         <div class="tag-cloud-item" onclick="filterByTag('${tag}')">${tag}</div>
     `).join('');
@@ -116,8 +135,9 @@ function renderTags() {
 // 搜索
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
     searchInput.addEventListener('input', (e) => {
-        filterState.query = e.target.value.toLowerCase();
+        filterState.query = e.target.value.toLowerCase().trim();
         applyFilters();
     });
 }
@@ -149,8 +169,12 @@ function filterByCategory(category) {
 // 按标签过滤
 function filterByTag(tag) {
     filterState.category = "全部";
+    filterState.collection = "全部系列";
     document.querySelectorAll('.category-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.category === "全部");
+    });
+    document.querySelectorAll('.series-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.series === "全部系列");
     });
     filterState.query = tag.toLowerCase();
     document.getElementById('searchInput').value = tag;
@@ -159,8 +183,8 @@ function filterByTag(tag) {
 }
 
 // 查看笔记:跳转到详情页
-function viewPost(id) {
-    const post = blogPosts.find(p => p.id === id);
+function viewPost(slug) {
+    const post = blogPosts.find(p => p.slug === slug);
     if (post && post.url) {
         window.location.href = post.url;
     }

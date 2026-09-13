@@ -35,11 +35,13 @@
         <div class="hero-content">
             <div class="hero-badge">LEARNING_ARCHIVE // v1.0</div>
             <h1>Akira 的<span class="accent">学习笔记库</span></h1>
-            <p class="hero-subtitle">课程笔记<span class="sep">/</span>论文笔记<span class="sep">/</span>持续更新中</p>
+            <p class="hero-subtitle">课程笔记<span class="sep">/</span>论文笔记<span class="sep">/</span>读书笔记</p>
             <div class="hero-actions">
                 <a class="neon-btn cyan" href="#posts" onclick="filterByCategory('课程笔记'); return false;">课程笔记</a>
                 <a class="neon-btn pink" href="#posts" onclick="filterByCategory('论文笔记'); return false;">论文笔记</a>
+                <a class="neon-btn purple" href="#posts" onclick="filterByCategory('读书笔记'); return false;">读书笔记</a>
             </div>
+            <div class="hero-stats" id="heroStats"></div>
         </div>
     </section>
 
@@ -57,6 +59,8 @@
                     <button class="category-btn" data-category="论文笔记">论文笔记</button>
                     <button class="category-btn" data-category="读书笔记">读书笔记</button>
                 </div>
+                <div class="series-filters" id="seriesFilters"></div>
+                <div class="result-count" id="resultCount"></div>
             </div>
             <div class="posts-grid" id="postsGrid">
                 <!-- 笔记卡片由 JavaScript 动态生成 -->
@@ -79,7 +83,7 @@
         <div class="container">
             <h2 class="section-title">关于</h2>
             <div class="about-content">
-                <p>这里是我的<span class="highlight">个人学习档案库</span>,用来沉淀两类笔记:跟课学习时的课程笔记,以及读论文时的论文笔记。</p>
+                <p>这里是我的<span class="highlight">个人学习档案库</span>,沉淀三类笔记:跟课学习的课程笔记、读论文的论文笔记、读书的读书笔记。</p>
                 <p>写笔记的原则:不是抄录,而是把知识整理成有逻辑链条、带自己思考的东西——能讲清楚,才算学会。</p>
                 <div class="social-links">
                     <a href="https://github.com/Akira-crop" target="_blank" title="GitHub">
@@ -99,6 +103,7 @@
         </div>
     </footer>
 
+    <script src="assets/js/posts-data.js"></script>
     <script src="assets/js/script.js"></script>
 </body>
 </html>
