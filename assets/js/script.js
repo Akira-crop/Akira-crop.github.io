@@ -13,6 +13,8 @@ const filterState = {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
+    setupTheme();
+    setupNavScroll();
     applyFilters();
     renderStats();
     renderTags();
@@ -21,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCategoryFilters();
     setupNavigation();
     setupMobileMenu();
+    setupReveal();
 });
 
 // 联合筛选并渲染
@@ -68,6 +71,18 @@ function renderPosts(posts) {
             </div>
         </div>
     `).join('');
+
+    // 卡片逐张渐显 + 光标高光跟随
+    Array.from(postsGrid.children).forEach((card, i) => {
+        card.dataset.reveal = '';
+        card.style.transitionDelay = Math.min(i * 70, 420) + 'ms';
+        card.addEventListener('mousemove', (e) => {
+            const r = card.getBoundingClientRect();
+            card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+            card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+    });
+    observeReveal(postsGrid);
 }
 
 // 结果计数
@@ -226,6 +241,61 @@ function setupNavigation() {
             link.classList.add('active');
         });
     });
+}
+
+// ===== 交互:主题切换 / 导航状态 / 滚动渐显 =====
+
+// 深浅色切换(持久化到 localStorage)
+function setupTheme() {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const sync = () => {
+        if (meta) meta.setAttribute('content', document.documentElement.dataset.theme === 'dark' ? '#000000' : '#fbfbfd');
+    };
+    sync();
+
+    btn.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        sync();
+    });
+}
+
+// 滚动时导航栏收窄
+function setupNavScroll() {
+    const nav = document.getElementById('navbar');
+    if (!nav) return;
+    const update = () => nav.classList.toggle('scrolled', window.scrollY > 12);
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+}
+
+// 滚动渐显(观察器懒加载,保证动态渲染的卡片也能被观察到)
+let revealObserver = null;
+
+function getRevealObserver() {
+    if (revealObserver) return revealObserver;
+    revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    return revealObserver;
+}
+
+function setupReveal() {
+    observeReveal(document);
+}
+
+function observeReveal(root) {
+    const io = getRevealObserver();
+    root.querySelectorAll('[data-reveal]:not(.revealed)').forEach(el => io.observe(el));
 }
 
 // 移动端菜单
