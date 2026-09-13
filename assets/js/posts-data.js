@@ -15,6 +15,7 @@ window.ALL_POSTS = [
         ],
         "emoji": "🏛️",
         "excerpt": "五级架构、央地关系、条块分割——第一章的两张图纸。判断任何一级政府的真实权力,只需问:人事权和财政权在谁手里。",
+        "minutes": 11,
         "url": "posts/zhishenshinei-1.html"
     },
     {
@@ -33,6 +34,7 @@ window.ALL_POSTS = [
         ],
         "emoji": "🦭",
         "excerpt": "为什么 b = a 之后改 b 会影响 a?Java 到底是传值还是传引用?二维数组为什么可以每行长度不同?全部从一条 Golden Rule of Equals 推出来。",
+        "minutes": 15,
         "url": "posts/cs61b-lecture-3.html"
     },
     {
@@ -49,6 +51,7 @@ window.ALL_POSTS = [
         ],
         "emoji": "☕",
         "excerpt": "HelloWorld、编译运行、静态类型……单拆出来都简单,但这一讲的本质是建立三个模型:程序的结构模型、编译运行模型、静态类型模型。",
+        "minutes": 16,
         "url": "posts/cs61b-lecture-1.html"
     },
     {
@@ -66,6 +69,7 @@ window.ALL_POSTS = [
         ],
         "emoji": "🐶",
         "excerpt": "构造器、this、实例方法 vs 静态方法、实例变量 vs 静态变量……这一讲的语法点全部围绕一对判断展开,最后落到接口与实现的分离。",
+        "minutes": 18,
         "url": "posts/cs61b-lecture-2.html"
     }
 ];

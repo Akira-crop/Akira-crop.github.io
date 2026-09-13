@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Akira 的学习笔记库 - 课程笔记、论文笔记与读书笔记">
     <meta name="keywords" content="学习笔记, CS61B, Java, 置身事内, 读书笔记, 论文笔记">
-    <meta name="theme-color" content="#fbfbfd">
+    <meta name="theme-color" content="#ffffff">
     <title>Akira's Notes - 学习笔记库</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="icon" href="assets/images/favicon.ico">
@@ -21,16 +21,16 @@
     </script>
 </head>
 <body>
-    <!-- 导航栏 -->
+    <!-- 站头 -->
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="logo">
-                <a href="/">Akira's Notes</a>
+                <a href="/">Akira's Notes<span class="logo-sub">学习笔记库</span></a>
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" class="active">首页</a></li>
                 <li><a href="#posts">笔记</a></li>
-                <li><a href="#tags">标签</a></li>
+                <li><a href="#series">系列</a></li>
                 <li><a href="#about">关于</a></li>
             </ul>
             <button class="theme-toggle" id="themeToggle" type="button" title="切换深色 / 浅色">
@@ -50,73 +50,58 @@
         </div>
     </nav>
 
-    <!-- 首页 -->
-    <section id="home" class="hero">
-        <div class="hero-blobs" aria-hidden="true">
-            <span class="blob b1"></span>
-            <span class="blob b2"></span>
-            <span class="blob b3"></span>
-        </div>
-        <div class="hero-content" data-reveal>
-            <div class="hero-badge">LEARNING ARCHIVE</div>
-            <h1>把学过的东西<br><span class="accent">讲成自己的话</span></h1>
-            <p class="hero-subtitle">课程笔记<span class="sep">/</span>论文笔记<span class="sep">/</span>读书笔记</p>
-            <div class="hero-actions">
-                <a class="neon-btn cyan" href="#posts" onclick="filterByCategory('课程笔记'); return false;">课程笔记</a>
-                <a class="neon-btn pink" href="#posts" onclick="filterByCategory('论文笔记'); return false;">论文笔记</a>
-                <a class="neon-btn purple" href="#posts" onclick="filterByCategory('读书笔记'); return false;">读书笔记</a>
-            </div>
-            <div class="hero-stats" id="heroStats"></div>
+    <!-- 简介 -->
+    <section id="home" class="intro" data-nav>
+        <div class="container" data-reveal>
+            <h1>把学过的东西,讲成自己的话</h1>
+            <p>这里是我的学习档案库。跟课的课程笔记、读论文的论文笔记、读书的读书笔记,都按"有逻辑链条 + 带自己思考"的方式整理——能讲清楚,才算学会。</p>
+            <div class="intro-stats" id="heroStats"></div>
         </div>
     </section>
 
-    <!-- 笔记列表 -->
-    <section id="posts" class="posts-section">
+    <!-- 笔记列表 + 侧栏 -->
+    <section id="posts" class="posts-section" data-nav>
         <div class="container">
-            <h2 class="section-title" data-reveal>学习笔记</h2>
-            <div class="filter-bar" data-reveal>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="搜索笔记标题、摘要或标签...">
+            <div class="layout">
+                <div class="main-col">
+                    <div class="filter-bar" data-reveal>
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="搜索标题、摘要或标签...">
+                        </div>
+                        <div class="category-filters" id="categoryFilters">
+                            <button class="category-btn active" data-category="全部">全部</button>
+                            <button class="category-btn" data-category="课程笔记">课程笔记</button>
+                            <button class="category-btn" data-category="论文笔记">论文笔记</button>
+                            <button class="category-btn" data-category="读书笔记">读书笔记</button>
+                        </div>
+                        <div class="series-filters" id="seriesFilters"></div>
+                        <div class="result-count" id="resultCount"></div>
+                    </div>
+                    <ul class="post-list" id="postList">
+                        <!-- 文章条目由 JavaScript 生成 -->
+                    </ul>
                 </div>
-                <div class="category-filters" id="categoryFilters">
-                    <button class="category-btn active" data-category="全部">全部</button>
-                    <button class="category-btn" data-category="课程笔记">课程笔记</button>
-                    <button class="category-btn" data-category="论文笔记">论文笔记</button>
-                    <button class="category-btn" data-category="读书笔记">读书笔记</button>
-                </div>
-                <div class="series-filters" id="seriesFilters"></div>
-                <div class="result-count" id="resultCount"></div>
-            </div>
-            <div class="posts-grid" id="postsGrid">
-                <!-- 笔记卡片由 JavaScript 动态生成 -->
-            </div>
-        </div>
-    </section>
 
-    <!-- 标签云 -->
-    <section id="tags" class="tags-section">
-        <div class="container">
-            <h2 class="section-title" data-reveal>标签云</h2>
-            <div class="tags-cloud" id="tagsCloud" data-reveal>
-                <!-- 标签由 JavaScript 动态生成 -->
-            </div>
-        </div>
-    </section>
+                <aside class="side-col">
+                    <section class="side-card" id="series" data-reveal>
+                        <div class="side-title">系列</div>
+                        <div id="seriesOverview"></div>
+                    </section>
 
-    <!-- 关于 -->
-    <section id="about" class="about-section">
-        <div class="container">
-            <h2 class="section-title" data-reveal>关于</h2>
-            <div class="about-content" data-reveal>
-                <p>这里是我的<span class="highlight">个人学习档案库</span>,沉淀三类笔记:跟课学习的课程笔记、读论文的论文笔记、读书的读书笔记。</p>
-                <p>写笔记的原则:不是抄录,而是把知识整理成有逻辑链条、带自己思考的东西——能讲清楚,才算学会。</p>
-                <div class="social-links">
-                    <a href="https://github.com/Akira-crop" target="_blank" rel="noopener" title="GitHub">
-                        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                        </svg>
-                    </a>
-                </div>
+                    <section class="side-card" id="tags" data-reveal>
+                        <div class="side-title">标签</div>
+                        <div class="tag-cloud" id="tagsCloud"></div>
+                    </section>
+
+                    <section class="side-card" id="about" data-reveal>
+                        <div class="side-title">关于</div>
+                        <p>个人学习档案库,持续更新中。笔记不是抄录,而是把知识整理成能讲清楚的结构。</p>
+                        <p>课程笔记以 CS61B 为主线,读书笔记从《置身事内》开始。</p>
+                        <ul class="side-links">
+                            <li><a href="https://github.com/Akira-crop" target="_blank" rel="noopener">GitHub →</a></li>
+                        </ul>
+                    </section>
+                </aside>
             </div>
         </div>
     </section>

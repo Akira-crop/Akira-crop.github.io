@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavScroll();
     applyFilters();
     renderStats();
+    renderSeriesOverview();
     renderTags();
     renderSeriesFilters();
     setupSearch();
@@ -42,47 +43,42 @@ function applyFilters() {
     updateResultCount(filtered.length);
 }
 
-// 渲染笔记卡片
+// 渲染文章列表
 function renderPosts(posts) {
-    const postsGrid = document.getElementById('postsGrid');
-    if (!postsGrid) return;
+    const list = document.getElementById('postList');
+    if (!list) return;
 
     if (posts.length === 0) {
-        postsGrid.innerHTML = '<div class="no-posts">// 暂无匹配的笔记</div>';
+        list.innerHTML = '<li class="no-posts">没有匹配的笔记,换个关键词试试。</li>';
         return;
     }
 
-    postsGrid.innerHTML = posts.map(post => `
-        <div class="post-card" onclick="viewPost('${post.slug}')">
-            <div class="post-image">
-                <span class="post-category">${post.category}</span>
-                ${post.emoji || '📄'}
+    list.innerHTML = posts.map(post => `
+        <li class="post-item">
+            <div class="post-item-meta">
+                <span>${formatDate(post.date)}</span>
+                <span class="cat">${post.category}</span>
+                ${post.minutes ? `<span>约 ${post.minutes} 分钟</span>` : ''}
             </div>
-            <div class="post-content">
-                <div class="post-meta-line">
-                    <span class="post-date">${formatDate(post.date)}</span>
-                    <span class="post-collection">${post.collection || ''}</span>
-                </div>
-                <h3 class="post-title">${post.title}</h3>
-                <p class="post-excerpt">${post.excerpt || ''}</p>
+            <h2 class="post-item-title">
+                <a href="${post.url}">${post.title}</a>
+            </h2>
+            <p class="post-item-excerpt">${post.excerpt || ''}</p>
+            <div class="post-item-foot">
                 <div class="post-tags">
                     ${post.tags.map(tag => `<span class="tag-chip">${tag}</span>`).join('')}
                 </div>
+                <a class="read-more" href="${post.url}">阅读全文 →</a>
             </div>
-        </div>
+        </li>
     `).join('');
 
-    // 卡片逐张渐显 + 光标高光跟随
-    Array.from(postsGrid.children).forEach((card, i) => {
-        card.dataset.reveal = '';
-        card.style.transitionDelay = Math.min(i * 70, 420) + 'ms';
-        card.addEventListener('mousemove', (e) => {
-            const r = card.getBoundingClientRect();
-            card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-            card.style.setProperty('--my', (e.clientY - r.top) + 'px');
-        });
+    // 条目逐个渐显
+    Array.from(list.children).forEach((item, i) => {
+        item.dataset.reveal = '';
+        item.style.transitionDelay = Math.min(i * 60, 360) + 'ms';
     });
-    observeReveal(postsGrid);
+    observeReveal(list);
 }
 
 // 结果计数
@@ -98,19 +94,43 @@ function updateResultCount(n) {
         : `// 共 ${n} 篇笔记`;
 }
 
-// 首页统计
+// 顶部统计(一行小字)
 function renderStats() {
     const box = document.getElementById('heroStats');
     if (!box) return;
-    const categories = new Set(blogPosts.map(p => p.category));
     const collections = new Set(blogPosts.map(p => p.collection).filter(Boolean));
     const latest = blogPosts.reduce((a, p) => (a > p.date ? a : p.date), '');
-    box.innerHTML = `
-        <div class="stat"><span class="stat-num">${blogPosts.length}</span><span class="stat-label">篇笔记</span></div>
-        <div class="stat"><span class="stat-num">${collections.size}</span><span class="stat-label">个系列</span></div>
-        <div class="stat"><span class="stat-num">${categories.size}</span><span class="stat-label">个分类</span></div>
-        <div class="stat"><span class="stat-num">${latest || '--'}</span><span class="stat-label">最近更新</span></div>
-    `;
+    box.innerHTML = [
+        `${blogPosts.length} 篇笔记`,
+        `${collections.size} 个系列`,
+        `最近更新 ${latest || '--'}`
+    ].join('<span class="dot"> · </span>');
+}
+
+// 侧栏:系列归档
+function renderSeriesOverview() {
+    const box = document.getElementById('seriesOverview');
+    if (!box) return;
+
+    const groups = [];
+    blogPosts.forEach(post => {
+        const name = post.collection || '未归类';
+        let g = groups.find(x => x.name === name);
+        if (!g) { g = { name, posts: [] }; groups.push(g); }
+        g.posts.push(post);
+    });
+
+    box.innerHTML = groups.map(g => `
+        <div class="series-group">
+            <div class="series-name">
+                <span>${g.name}</span>
+                <span class="series-count">${g.posts.length} 篇</span>
+            </div>
+            <ul class="series-posts">
+                ${g.posts.map(p => `<li><a href="${p.url}">${p.title}</a></li>`).join('')}
+            </ul>
+        </div>
+    `).join('');
 }
 
 // 渲染系列筛选
@@ -214,7 +234,7 @@ function formatDate(dateString) {
 // 导航栏链接活跃状态
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-menu a');
-    const sections = document.querySelectorAll('section');
+    const sections = document.querySelectorAll('section[data-nav]');
 
     const highlightNavLink = () => {
         let current = '';
