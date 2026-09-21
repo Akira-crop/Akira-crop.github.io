@@ -55,20 +55,23 @@ function renderPosts(posts) {
 
     list.innerHTML = posts.map(post => `
         <li class="post-item">
-            <div class="post-item-meta">
-                <span>${formatDate(post.date)}</span>
-                <span class="cat">${post.category}</span>
-                ${post.minutes ? `<span>约 ${post.minutes} 分钟</span>` : ''}
-            </div>
-            <h2 class="post-item-title">
-                <a href="${post.url}">${post.title}</a>
-            </h2>
-            <p class="post-item-excerpt">${post.excerpt || ''}</p>
-            <div class="post-item-foot">
-                <div class="post-tags">
-                    ${post.tags.map(tag => `<span class="tag-chip">${tag}</span>`).join('')}
+            <div class="item-slot" aria-hidden="true">${post.emoji || '📄'}</div>
+            <div class="post-item-main">
+                <div class="post-item-meta">
+                    <span>${formatDate(post.date)}</span>
+                    <span class="cat">${post.category}</span>
+                    ${post.minutes ? `<span>约 ${post.minutes} 分钟</span>` : ''}
                 </div>
-                <a class="read-more" href="${post.url}">阅读全文 →</a>
+                <h2 class="post-item-title">
+                    <a href="${post.url}">${post.title}</a>
+                </h2>
+                <p class="post-item-excerpt">${post.excerpt || ''}</p>
+                <div class="post-item-foot">
+                    <div class="post-tags">
+                        ${post.tags.map(tag => `<span class="tag-chip">${tag}</span>`).join('')}
+                    </div>
+                    <a class="read-more" href="${post.url}">阅读全文 →</a>
+                </div>
             </div>
         </li>
     `).join('');

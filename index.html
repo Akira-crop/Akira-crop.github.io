@@ -7,8 +7,11 @@
     <meta name="keywords" content="学习笔记, CS61B, Java, 置身事内, 读书笔记, 论文笔记">
     <meta name="theme-color" content="#ffffff">
     <title>Akira's Notes - 学习笔记库</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="icon" href="assets/images/favicon.ico">
+    <link rel="icon" href="assets/images/favicon.png">
     <script>
         // 提前应用主题,避免深色模式闪白
         (function () {
@@ -33,7 +36,7 @@
                 <li><a href="#series">系列</a></li>
                 <li><a href="#about">关于</a></li>
             </ul>
-            <button class="theme-toggle" id="themeToggle" type="button" title="切换深色 / 浅色">
+            <button class="theme-toggle" id="themeToggle" type="button" title="切换白天 / 夜晚">
                 <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
                 </svg>
@@ -50,8 +53,15 @@
         </div>
     </nav>
 
-    <!-- 简介 -->
+    <!-- 简介:方块世界的天空 -->
     <section id="home" class="intro" data-nav>
+        <div class="mc-scene" aria-hidden="true">
+            <div class="mc-sun"></div>
+            <div class="mc-cloud c1"></div>
+            <div class="mc-cloud c2"></div>
+            <div class="mc-cloud c3"></div>
+            <img class="mc-creeper" src="assets/images/creeper.png" alt="">
+        </div>
         <div class="container" data-reveal>
             <h1>把学过的东西,讲成自己的话</h1>
             <p>这里是我的学习档案库。跟课的课程笔记、读论文的论文笔记、读书的读书笔记,都按"有逻辑链条 + 带自己思考"的方式整理——能讲清楚,才算学会。</p>
