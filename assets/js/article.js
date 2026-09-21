@@ -27,12 +27,17 @@
         const fill = el('span', 'read-progress-fill');
         bar.appendChild(fill);
         document.body.appendChild(bar);
+        // 经验等级数字:阅读进度映射成 Lv. 0~100
+        const level = el('span', 'xp-level', 'Lv. 0');
+        document.body.appendChild(level);
 
         const update = () => {
             const h = document.documentElement;
             const max = h.scrollHeight - h.clientHeight;
             const pct = max > 0 ? (h.scrollTop || document.body.scrollTop) / max * 100 : 0;
-            fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+            const clamped = Math.min(100, Math.max(0, pct));
+            fill.style.width = clamped + '%';
+            level.textContent = 'Lv. ' + Math.round(clamped);
         };
         window.addEventListener('scroll', update, { passive: true });
         window.addEventListener('resize', update);

@@ -271,6 +271,40 @@ def creeper_face():
     return out
 
 
+def oak_log():
+    r = rng(109)
+    out = []
+    for y in range(SIZE):
+        row = []
+        for x in range(SIZE):
+            v = r()
+            if x % 4 == 0:
+                row.append(jitter((86, 64, 40), r, 8))
+            elif v % 19 == 0:
+                row.append((104, 79, 50))
+            else:
+                row.append(jitter((94, 71, 44), r, 10))
+        out.append(row)
+    return out
+
+
+def leaves():
+    r = rng(113)
+    out = []
+    for _ in range(SIZE):
+        row = []
+        for _ in range(SIZE):
+            v = r()
+            if v % 9 == 0:
+                row.append((34, 66, 20))
+            elif v % 23 == 0:
+                row.append((70, 118, 42))
+            else:
+                row.append(jitter((52, 96, 32), r, 10))
+        out.append(row)
+    return out
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     textures = {
@@ -286,6 +320,8 @@ def main():
         'gold_block.png': gold_block(),
         'bookshelf.png': bookshelf(),
         'creeper.png': creeper_face(),
+        'oak_log.png': oak_log(),
+        'leaves.png': leaves(),
     }
     for name, rows in textures.items():
         write_png(os.path.join(OUT_DIR, name), upscale(rows, SCALE))

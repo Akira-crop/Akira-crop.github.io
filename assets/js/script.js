@@ -54,7 +54,7 @@ function renderPosts(posts) {
     }
 
     list.innerHTML = posts.map(post => `
-        <li class="post-item">
+        <li class="post-item" data-category="${post.category}">
             <div class="item-slot" aria-hidden="true">${post.emoji || '📄'}</div>
             <div class="post-item-main">
                 <div class="post-item-meta">
