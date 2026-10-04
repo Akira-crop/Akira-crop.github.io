@@ -1,159 +1,97 @@
-# Akira's Blog 🌟
+# Akira's Notes
 
-一个现代化的个人博客网站，基于纯 HTML、CSS 和 JavaScript 构建。
+Akira 的个人学习笔记站点，使用原生 HTML、CSS 和 JavaScript 构建，部署在 GitHub Pages。这里记录课程学习、读书和对概念的整理，当前内容包括 CS61B 自学笔记，以及《置身事内》读书笔记。
 
-## ✨ 功能特性
+站点地址：<https://akira-crop.github.io/>
 
-- 📱 **响应式设计** - 完美适配桌面、平板和手机设备
-- 🎨 **现代化界面** - 使用渐变色、阴影和动画创建视觉吸引力
-- 📝 **文章管理** - 支持文章列表、标签分类和详情展示
-- 🔍 **搜索功能** - 实时搜索文章标题、内容和标签
-- 🏷️ **标签云** - 直观的标签云展示和过滤功能
-- 💬 **联系表单** - 访客可以直接发送消息
-- ⚡ **快速加载** - 无需任何打包工具或依赖，开箱即用
-- 🎭 **动画效果** - 流畅的页面动画和交互体验
+## 站点功能
 
-## 📁 文件结构
+- 按更新时间展示笔记，并支持按标题、摘要和标签搜索。
+- 支持按内容分类筛选：课程笔记、读书笔记和其他分类。
+- 支持按系列筛选，并在侧栏查看系列归档。
+- 根据文章自动生成标签云、文章数量和最近更新时间等信息。
+- 文章页提供阅读进度条、阅读等级、目录导航、代码块复制、返回顶部和上一篇/下一篇导航。
+- 支持明暗主题切换，主题偏好保存在浏览器的 `localStorage` 中。
+- 使用响应式布局和像素风视觉素材，适配桌面端和移动端。
+- 内置公众号排版工具：粘贴或导入 Markdown，实时预览多套主题，并复制为可直接粘贴到公众号编辑器的富文本。
 
-```
-Akira-crop.github.io/
-├── index.html              # 主页面
+## 当前内容
+
+| 系列 | 内容 |
+| --- | --- |
+| CS61B 自学笔记 | Lecture 1–3，覆盖 Java 基础、类与对象、引用模型、数组和集合等主题 |
+| 《置身事内》读书笔记 | 第一章，整理中国政府组织结构、央地关系与条块分割 |
+
+文章索引统一保存在 `assets/js/posts-data.js`，首页和文章页共用这份数据。
+
+## 项目结构
+
+```text
+.
+├── index.html                 # 首页：笔记列表、搜索、筛选和侧栏
+├── wechat.html                # 公众号 Markdown 排版工具
+├── posts/                     # 独立文章页面
 ├── assets/
-│   ├── css/
-│   │   └── style.css       # 样式表
-│   ├── js/
-│   │   └── script.js       # 脚本文件
-│   └── images/
-│       └── favicon.ico     # 网站图标
-└── README.md              # 项目说明
+│   ├── css/style.css          # 全站样式与主题
+│   ├── css/wechat.css         # 公众号工具工作区样式
+│   ├── js/script.js           # 首页交互与筛选逻辑
+│   ├── js/article.js          # 文章页增强功能
+│   ├── js/wechat-tool.js      # Markdown 解析、预览和复制逻辑
+│   ├── js/posts-data.js       # 自动生成的文章索引
+│   └── images/                # 像素风纹理、头像和站点图标
+└── tools/
+    ├── convert.js             # Markdown 笔记转文章页并生成索引
+    └── textures.py            # 生成像素风 PNG 素材
 ```
 
-## 🚀 快速开始
+## 本地预览
 
-1. **克隆或下载项目**
+项目是纯静态站点，不需要安装前端依赖。克隆后在项目根目录启动一个本地 HTTP 服务即可：
+
+```bash
+git clone https://github.com/Akira-crop/Akira-crop.github.io.git
+cd Akira-crop.github.io
+python -m http.server 8000
+```
+
+然后打开 <http://localhost:8000>。也可以直接打开 `index.html`，但使用 HTTP 服务更接近 GitHub Pages 的运行环境。
+
+公众号排版工具位于 <http://localhost:8000/wechat.html>。
+
+## 添加或更新文章
+
+文章页面和索引由 `tools/convert.js` 生成。通常的流程是：
+
+1. 准备 Markdown 笔记。
+2. 在 `tools/convert.js` 的 `posts` 数组中配置源文件路径、标题、日期、分类、系列和标签。
+3. 执行：
+
    ```bash
-   git clone https://github.com/Akira-crop/Akira-crop.github.io.git
-   cd Akira-crop.github.io
+   node tools/convert.js
    ```
 
-2. **本地预览**
-   - 直接在浏览器中打开 `index.html`
-   - 或使用 Python 简单 HTTP 服务器：
-     ```bash
-     python -m http.server 8000
-     ```
-   - 然后访问 `http://localhost:8000`
+4. 检查生成的 `posts/*.html` 和 `assets/js/posts-data.js`，然后提交变更。
 
-3. **自动部署**
-   - 项目已上传到 GitHub
-   - GitHub Pages 会自动部署到 `https://Akira-crop.github.io`
+转换器支持本项目使用的 Markdown 子集，包括二级至四级标题、列表、引用、围栏代码块、表格、链接、行内代码、加粗和简单数学表达式。`assets/js/posts-data.js` 是生成文件，请不要直接手动编辑。
 
-## 📝 自定义你的博客
+当前转换器中的 `src` 路径指向作者本机的 Markdown 文件目录。其他环境使用前需要把这些路径改成自己的笔记位置；如果只维护已经生成的文章页面，则不需要运行转换器。
 
-### 1. 修改博客信息
+## 公众号排版工具
 
-编辑 `index.html` 中的以下部分：
+打开 `wechat.html` 后，将 Markdown 粘贴到左侧输入区，右侧会实时生成公众号风格的文章预览。工具支持导入 `.md` 文件、自动保存浏览器草稿、摸鱼绿/红白/石墨极简/留白禅意/摸鱼票据/橄榄手记六套主题、标题层级、引用、列表、表格、代码块、图片和常用行内强调。正文从 Markdown 标题直接开始，不会额外插入封面卡片或横向目录。
 
-- **网站标题和描述**（第 6-8 行）
-- **导航菜单**（第 36-41 行）
-- **关于我的信息**（第 103-108 行）
-- **社交链接**（第 109-124 行）
-- **联系方式**（第 130-135 行）
+点击「复制到公众号」会同时写入 `text/html` 和纯文本剪贴板内容，浏览器支持时可直接在微信公众号文章编辑器中粘贴并保留内联样式。也可以复制 HTML 源码或下载 HTML 文件；图片不会被上传，Markdown 中的图片地址需要使用公众号可以访问的 HTTPS 地址。
 
-### 2. 添加文章
+## 发布到 GitHub Pages
 
-编辑 `assets/js/script.js` 中的 `blogPosts` 数组，添加你的文章：
+仓库已经适合直接作为 GitHub Pages 的静态源。发布时在仓库的 **Settings → Pages** 中选择 `main` 分支和根目录 `/`，保存后等待 GitHub Pages 完成部署即可。
 
-```javascript
-const blogPosts = [
-    {
-        id: 7,
-        title: "你的文章标题",
-        excerpt: "文章摘要...",
-        date: "2024-01-20",
-        tags: ["标签1", "标签2"],
-        emoji: "📚"  // 使用你喜欢的 emoji
-    },
-    // ... 更多文章
-];
-```
+本项目没有构建步骤、包管理文件或运行时后端；提交 HTML、CSS、JavaScript 和静态资源后即可发布。
 
-### 3. 修改色彩主题
+## 维护提示
 
-编辑 `assets/css/style.css` 中的 CSS 变量（第 7-17 行）：
-
-```css
-:root {
-    --primary-color: #667eea;      /* 主色调 */
-    --secondary-color: #764ba2;    /* 辅助色 */
-    --text-color: #333;            /* 文字颜色 */
-    /* ... 其他变量 */
-}
-```
-
-### 4. 添加个人头像
-
-替换 `.avatar-placeholder` 元素，或在 `assets/images/` 目录中添加你的头像图片。
-
-### 5. 连接邮件功能
-
-要使联系表单真正发送邮件，你可以：
-
-- 使用 [Formspree](https://formspree.io/) 或 [EmailJS](https://www.emailjs.com/)
-- 连接到你自己的后端 API
-- 使用 GitHub Issues 作为留言存储
-
-## 🎨 主题定制
-
-### 修改字体
-
-在 `style.css` 中，查找 `font-family` 属性并修改为你喜欢的字体。
-
-### 调整布局
-
-Grid 列数定义在 `.posts-grid` 中：
-```css
-.posts-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-}
-```
-
-修改 `minmax()` 值来改变卡片大小。
-
-## 📱 响应式断点
-
-- 📱 **移动设备**: 最大宽度 480px
-- 📟 **平板**: 最大宽度 768px  
-- 💻 **桌面**: 1200px 及以上
-
-## 🔧 常见问题
-
-**Q: 如何添加文章详情页？**
-A: 创建新文件 `posts/article-1.html`，或使用 `post.html?id=1` 的方式。
-
-**Q: 如何添加评论功能？**
-A: 集成第三方服务如 Disqus、Valine 或 Utterances。
-
-**Q: 如何优化 SEO？**
-A: 使用合适的 meta 标签、结构化数据，并在 Google Search Console 中提交。
-
-## 🚀 部署到 GitHub Pages
-
-1. 确保文件已上传到 GitHub
-2. 进入仓库设置 → Pages
-3. 选择 `main` 分支作为源
-4. 保存后，稍等片刻就能访问你的博客
-
-## 📄 许可证
-
-MIT License - 自由使用和修改
-
-## 💡 建议和改进
-
-欢迎通过 GitHub Issues 提出建议和 bug 报告！
-
----
-
-**开心写博客！** 🎉
-
-如果这个项目对你有帮助，请给个 Star ⭐！
+- 修改首页文案或导航时编辑 `index.html`。
+- 修改主题、布局和响应式样式时编辑 `assets/css/style.css`。
+- 修改首页搜索、筛选或统计逻辑时编辑 `assets/js/script.js`。
+- 修改文章页目录、进度条、复制按钮或文章导航时编辑 `assets/js/article.js`。
+- 新增或替换像素素材后，将文件放入 `assets/images/`，并在页面或样式中引用。

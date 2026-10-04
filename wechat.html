@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Akira's Notes 公众号 Markdown 排版工具">
+    <meta name="theme-color" content="#ffffff">
+    <title>公众号排版工具 - Akira's Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/wechat.css">
+    <link rel="icon" href="assets/images/favicon.png">
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme');
+                if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.dataset.theme = t;
+            } catch (e) {}
+        })();
+    </script>
+</head>
+<body class="wechat-page">
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">Akira's Notes<span class="logo-sub">学习笔记库</span></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html#home">首页</a></li>
+                <li><a href="index.html#posts">笔记</a></li>
+                <li><a href="index.html#series">系列</a></li>
+                <li><a href="wechat.html" class="active">公众号排版</a></li>
+            </ul>
+            <button class="theme-toggle" id="themeToggle" type="button" title="切换白天 / 夜晚">
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+                </svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+                </svg>
+            </button>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="wechat-main">
+        <header class="wechat-hero">
+            <div class="wechat-hero-copy">
+                <p class="wechat-kicker">// MARKDOWN → WECHAT</p>
+                <h1>把 Markdown 变成<br><span>可直接粘贴的公众号文章</span></h1>
+                <p class="wechat-lead">粘贴文章，选择一套排版主题，右侧实时预览。正文从 Markdown 标题直接开始，不额外生成封面和目录；点击复制后，到微信公众号编辑器直接粘贴，保留标题、引用、代码和内联样式。</p>
+            </div>
+            <div class="wechat-hero-badge" aria-hidden="true">
+                <span class="badge-pixel">MD</span>
+                <span class="badge-arrow">→</span>
+                <span class="badge-pixel badge-green">WX</span>
+            </div>
+        </header>
+
+        <section class="wechat-workbench" aria-label="公众号排版工作区">
+            <section class="wechat-panel editor-panel">
+                <div class="wechat-panel-head">
+                    <div>
+                        <p class="panel-eyebrow">INPUT</p>
+                        <h2>粘贴 Markdown</h2>
+                    </div>
+                    <label class="file-button">
+                        导入 .md
+                        <input id="markdownFile" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
+                    </label>
+                </div>
+                <textarea id="markdownInput" spellcheck="false" aria-label="Markdown 输入区"></textarea>
+                <div class="editor-foot">
+                    <span id="inputStats">0 字</span>
+                    <span>支持标题、列表、引用、代码、表格和图片</span>
+                </div>
+                <div class="editor-actions">
+                    <button class="wechat-button ghost" id="loadSample" type="button">填入示例</button>
+                    <button class="wechat-button ghost danger" id="clearInput" type="button">清空</button>
+                </div>
+            </section>
+
+            <section class="wechat-panel preview-panel">
+                <div class="wechat-panel-head preview-head">
+                    <div>
+                        <p class="panel-eyebrow">PREVIEW</p>
+                        <h2>公众号预览</h2>
+                    </div>
+                    <div class="preview-tools">
+                        <label class="theme-picker" for="themeSelect">
+                            <span>主题</span>
+                            <select id="themeSelect">
+                                <option value="moyu">摸鱼绿</option>
+                                <option value="redwhite">红白色系</option>
+                                <option value="graphite">石墨极简</option>
+                                <option value="zen">留白禅意</option>
+                                <option value="ticket">摸鱼票据</option>
+                                <option value="olive">橄榄手记</option>
+                            </select>
+                        </label>
+                        <button class="wechat-button primary" id="copyWechat" type="button">复制到公众号</button>
+                    </div>
+                </div>
+                <div class="preview-stage">
+                    <article class="wechat-paper" id="previewContent" aria-label="公众号文章预览"></article>
+                </div>
+                <div class="preview-foot">
+                    <span id="copyStatus" role="status">修改左侧内容，右侧会实时更新</span>
+                    <div class="preview-actions">
+                        <button class="text-button" id="copyHtml" type="button">复制 HTML</button>
+                        <button class="text-button" id="downloadHtml" type="button">下载 HTML</button>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="wechat-help">
+            <div class="help-icon">?</div>
+            <div>
+                <h2>怎么用</h2>
+                <p>在左侧粘贴 Markdown，右侧确认排版，点击「复制到公众号」，打开公众号文章编辑器后按 <kbd>Ctrl</kbd> + <kbd>V</kbd> 粘贴即可。所有排版样式会以内联形式写入复制内容。</p>
+            </div>
+            <div class="help-note">
+                <strong>提示</strong>
+                <span>图片请使用公开的 HTTPS 地址；本工具只负责排版，不会上传图片。</span>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 <span class="neon">Akira's Notes</span> // Keep learning, keep noting.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/wechat-tool.js"></script>
+</body>
+</html>
