@@ -799,6 +799,10 @@ img {
     background-image: url('../images/diamond_block.png');
 }
 
+.post-item[data-category="专题笔记"] .item-slot {
+    background-image: url('../images/stone.png');
+}
+
 .post-item:hover .post-item-title {
     color: var(--grass-d);
 }
@@ -1223,6 +1227,26 @@ img {
 .article-body .math {
     font-family: Georgia, 'Times New Roman', serif;
     font-style: italic;
+}
+
+.article-body math {
+    font-family: 'Cambria Math', 'STIX Two Math', math;
+    font-size: 1.05em;
+}
+
+.article-body .math-display {
+    margin: 1.4rem 0;
+    padding: 0.5rem 0;
+    overflow-x: auto;
+}
+
+.article-body .math-display math {
+    width: max-content;
+    min-width: 100%;
+}
+
+.article-body-math table {
+    min-width: 520px;
 }
 
 /* 表格:石板面板 */

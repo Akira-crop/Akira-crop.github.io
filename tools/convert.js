@@ -2,6 +2,7 @@
 // 用法: node tools/convert.js
 const fs = require('fs');
 const path = require('path');
+const katex = require('./vendor/katex-0.16.39.js');
 
 const ROOT = path.join(__dirname, '..');
 const POSTS_DIR = path.join(ROOT, 'posts');
@@ -10,26 +11,48 @@ function escapeHtml(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// 行内语法: 行内代码、加粗、链接、$...$ 简易数学
-function inline(s) {
+// 构建时生成原生 MathML，文章页无需加载数学渲染脚本或外部字体。
+function renderMath(source, displayMode = false) {
+    return katex.renderToString(source, {
+        output: 'mathml',
+        displayMode,
+        throwOnError: true,
+        strict: 'ignore',
+        trust: false
+    });
+}
+
+// 行内语法: 行内代码、加粗、链接、$...$ 数学
+function inline(s, math = false) {
     const codes = [];
     s = s.replace(/`([^`]+)`/g, (_, c) => {
         codes.push(c);
         return '' + (codes.length - 1) + '';
     });
+    const formulas = [];
+    if (math) {
+        s = s.replace(/\$([^$]+)\$/g, (_, source) => {
+            formulas.push(renderMath(source));
+            return '\u0002' + (formulas.length - 1) + '\u0002';
+        });
+    }
     s = escapeHtml(s);
     s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,
         '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    // $-2^{31}$ -> -2<sup>31</sup>
-    s = s.replace(/\$([^$]+)\$/g, (_, m) => {
-        return '<span class="math">' + m.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>') + '</span>';
-    });
+    if (!math) {
+        // 保留已有文章的简单数学格式: $-2^{31}$ -> -2<sup>31</sup>
+        s = s.replace(/\$([^$]+)\$/g, (_, m) => {
+            return '<span class="math">' + m.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>') + '</span>';
+        });
+    }
+    s = s.replace(/\u0002(\d+)\u0002/g, (_, i) => formulas[+i]);
     s = s.replace(/(\d+)/g, (_, i) => '<code>' + escapeHtml(codes[+i]) + '</code>');
     return s;
 }
 
-function convert(md) {
+function convert(md, { math = false } = {}) {
+    const renderInline = s => inline(s, math);
     const lines = md.split(/\r?\n/);
     let html = '';
     let i = 0;
@@ -42,7 +65,7 @@ function convert(md) {
     };
     const closeQuote = () => {
         if (inQuote) {
-            html += '<blockquote>' + quoteBuf.map(inline).join('<br>') + '</blockquote>\n';
+            html += '<blockquote>' + quoteBuf.map(renderInline).join('<br>') + '</blockquote>\n';
             inQuote = false; quoteBuf = [];
         }
     };
@@ -66,6 +89,21 @@ function convert(md) {
         }
         if (inCode) { codeBuf.push(line); i++; continue; }
 
+        // 独立行的 $$...$$ 公式块，仅在文章启用 math 时解析。
+        if (math && line.trim() === '$$') {
+            closeList(); closeQuote();
+            const startLine = i + 1;
+            const formula = [];
+            i++;
+            while (i < lines.length && lines[i].trim() !== '$$') {
+                formula.push(lines[i++]);
+            }
+            if (i === lines.length) throw new Error('未闭合的数学公式块，起始行: ' + startLine);
+            html += '<div class="math-display">' + renderMath(formula.join('\n'), true) + '</div>\n';
+            i++;
+            continue;
+        }
+
         // 空行
         if (/^\s*$/.test(line)) { closeList(); closeQuote(); i++; continue; }
 
@@ -86,9 +124,9 @@ function convert(md) {
                 i++;
             }
             html += '<div class="table-wrap"><table><thead><tr>' +
-                headerCells.map((c, k) => `<th style="text-align:${aligns[k] || 'left'}">${inline(c)}</th>`).join('') +
+                headerCells.map((c, k) => `<th style="text-align:${aligns[k] || 'left'}">${renderInline(c)}</th>`).join('') +
                 '</tr></thead><tbody>' +
-                rows.map(r => '<tr>' + r.map((c, k) => `<td style="text-align:${aligns[k] || 'left'}">${inline(c)}</td>`).join('') + '</tr>').join('') +
+                rows.map(r => '<tr>' + r.map((c, k) => `<td style="text-align:${aligns[k] || 'left'}">${renderInline(c)}</td>`).join('') + '</tr>').join('') +
                 '</tbody></table></div>\n';
             continue;
         }
@@ -99,7 +137,7 @@ function convert(md) {
             closeList(); closeQuote();
             const level = h[1].length;
             if (level === 1) { i++; continue; } // 文章 H1 由模板渲染
-            html += `<h${level}>${inline(h[2])}</h${level}>\n`;
+            html += `<h${level}>${renderInline(h[2])}</h${level}>\n`;
             i++;
             continue;
         }
@@ -122,27 +160,27 @@ function convert(md) {
         const ol = line.match(/^\d+\.\s+(.*)$/);
         if (ul) {
             if (listType !== 'ul') { closeList(); html += '<ul>\n'; listType = 'ul'; }
-            html += `<li>${inline(ul[1])}</li>\n`;
+            html += `<li>${renderInline(ul[1])}</li>\n`;
             i++;
             continue;
         }
         if (ol) {
             if (listType !== 'ol') { closeList(); html += '<ol>\n'; listType = 'ol'; }
-            html += `<li>${inline(ol[1])}</li>\n`;
+            html += `<li>${renderInline(ol[1])}</li>\n`;
             i++;
             continue;
         }
         closeList();
 
         // 普通段落
-        html += `<p>${inline(line)}</p>\n`;
+        html += `<p>${renderInline(line)}</p>\n`;
         i++;
     }
     closeList(); closeQuote();
     return html;
 }
 
-function pageTemplate({ title, date, tags, series, body }) {
+function pageTemplate({ title, date, tags, series, body, math = false }) {
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -208,7 +246,7 @@ function pageTemplate({ title, date, tags, series, body }) {
                     </div>
                 </div>
             </header>
-            <div class="article-body">
+            <div class="article-body${math ? ' article-body-math' : ''}">
 ${body}
             </div>
             <footer class="article-footer">
@@ -243,6 +281,20 @@ ${body}
 }
 
 const posts = [
+    {
+        src: path.join(ROOT, 'notes/probability-paradoxes.md'),
+        out: 'probability-paradoxes.html',
+        title: '概率论学习笔记：12 个经典问题与建模误区',
+        date: '2026年10月7日',
+        dateISO: '2026-10-07',
+        category: '专题笔记',
+        collection: '概率论学习笔记',
+        emoji: '🎲',
+        excerpt: '从蒙提霍尔到圣彼得堡，按条件信息、组合与抽样、独立性、分组与期望整理 12 个经典问题，补齐答案成立的前提、计算过程和复习检查清单。',
+        tags: ['概率论', '条件概率', '统计学', '学习笔记'],
+        series: '概率论学习笔记 · 经典问题与建模误区',
+        math: true
+    },
     {
         src: 'F:/学习笔记/《置身事内》学习笔记/2026-09-09_知乎版.md',
         out: 'zhishenshinei-1.html',
@@ -301,7 +353,7 @@ if (!fs.existsSync(POSTS_DIR)) fs.mkdirSync(POSTS_DIR, { recursive: true });
 
 for (const p of posts) {
     const md = fs.readFileSync(p.src, 'utf-8');
-    const body = convert(md);
+    const body = convert(md, p);
     // 粗略估算阅读时长:去空白后的字符数 / 380
     p.minutes = Math.max(1, Math.round(md.replace(/\s/g, '').length / 380));
     fs.writeFileSync(path.join(POSTS_DIR, p.out), pageTemplate({ ...p, body }), 'utf-8');

@@ -1,6 +1,24 @@
 // 由 tools/convert.js 自动生成,请勿手动编辑
 window.ALL_POSTS = [
     {
+        "slug": "probability-paradoxes",
+        "title": "概率论学习笔记：12 个经典问题与建模误区",
+        "date": "2026-10-07",
+        "category": "专题笔记",
+        "collection": "概率论学习笔记",
+        "series": "概率论学习笔记 · 经典问题与建模误区",
+        "tags": [
+            "概率论",
+            "条件概率",
+            "统计学",
+            "学习笔记"
+        ],
+        "emoji": "🎲",
+        "excerpt": "从蒙提霍尔到圣彼得堡，按条件信息、组合与抽样、独立性、分组与期望整理 12 个经典问题，补齐答案成立的前提、计算过程和复习检查清单。",
+        "minutes": 19,
+        "url": "posts/probability-paradoxes.html"
+    },
+    {
         "slug": "zhishenshinei-1",
         "title": "《置身事内》读书笔记(一):中国政府这台机器是怎么组织起来的",
         "date": "2026-09-09",
