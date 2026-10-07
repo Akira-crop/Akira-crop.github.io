@@ -187,11 +187,8 @@ function pageTemplate({ title, date, tags, series, body, math = false }) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="${title}">
-    <meta name="theme-color" content="#fbfbfd">
+    <meta name="theme-color" content="#f6f2ea">
     <title>${title} - Akira's Notes</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="icon" href="../assets/images/favicon.png">
     <script>
@@ -270,7 +267,7 @@ ${body}
             if (b) b.addEventListener('click', function () {
                 var n = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
                 document.documentElement.dataset.theme = n;
-                if (meta) meta.setAttribute('content', n === 'dark' ? '#000000' : '#fbfbfd');
+                if (meta) meta.setAttribute('content', n === 'dark' ? '#000000' : '#f6f2ea');
                 try { localStorage.setItem('theme', n); } catch (e) {}
             });
         })();

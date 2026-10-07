@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "lang": "zh",
+  "project": "Akira's Notes",
+  "brief": "个人学习档案库首页：浏览最近笔记、按系列定位并进入长文阅读。所有候选使用同一批真实文章标题、摘要和标签。",
+  "round": "01",
+  "candidates": [
+    {
+      "id": "current",
+      "name": "现状",
+      "concept": "像素游戏式学习基地，强调场景和收藏感。",
+      "typography": "Press Start 2P / Zpix 标题，系统无衬线正文",
+      "palette": ["#e6e4db", "#5d9c3c", "#1f9e93"],
+      "traits": ["像素场景", "厚边框", "信息卡片"],
+      "kind": "url",
+      "url": "http://127.0.0.1:8026/",
+      "baseline": true
+    },
+    {
+      "id": "blueprint",
+      "name": "蓝晒索引",
+      "concept": "像翻一份正在生长的研究手册：先看到最近文章，再沿索引深入。",
+      "typography": "衬线展示标题 / 无衬线界面 / 等宽编号",
+      "palette": ["#f6f2ea", "#17253a", "#2f5cff", "#e76f51"],
+      "traits": ["暖纸张", "连续编号线", "研究档案卡"],
+      "kind": "html",
+      "source": "blueprint.html"
+    },
+    {
+      "id": "garden",
+      "name": "苔藓书房",
+      "concept": "像一个安静的私人书房：文章是书脊，系列是书架，浏览没有噪音。",
+      "typography": "高对比衬线标题 / 人文无衬线正文",
+      "palette": ["#f3f0e7", "#26332d", "#78966a", "#c87958"],
+      "traits": ["书页留白", "书脊列表", "苔绿强调"],
+      "kind": "html",
+      "source": "garden.html"
+    },
+    {
+      "id": "index",
+      "name": "电蓝目录",
+      "concept": "像一份现代研究目录：信息密度更高，视觉识别靠蓝色线索和精确对齐。",
+      "typography": "紧凑无衬线标题 / 等宽元信息",
+      "palette": ["#f2f5f8", "#07111f", "#2855d9", "#e2a72d"],
+      "traits": ["高对比蓝线", "密集目录", "编号导航"],
+      "kind": "html",
+      "source": "index.html"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ Akira 的个人学习笔记站点，使用原生 HTML、CSS 和 JavaScript 构�
 - 根据文章自动生成标签云、文章数量和最近更新时间等信息。
 - 文章页提供阅读进度条、阅读等级、目录导航、代码块复制、返回顶部和上一篇/下一篇导航。
 - 支持明暗主题切换，主题偏好保存在浏览器的 `localStorage` 中。
-- 使用响应式布局和像素风视觉素材，适配桌面端和移动端。
+- 使用响应式布局、明暗主题和蓝晒纸张 × 研究索引卡的档案视觉，适配桌面端和移动端。
 - 内置公众号排版工具：粘贴或导入 Markdown，实时预览多套主题，并复制为可直接粘贴到公众号编辑器的富文本。
 
 ## 当前内容
@@ -41,7 +41,7 @@ Akira 的个人学习笔记站点，使用原生 HTML、CSS 和 JavaScript 构�
 │   ├── js/article.js          # 文章页增强功能
 │   ├── js/wechat-tool.js      # Markdown 解析、预览和复制逻辑
 │   ├── js/posts-data.js       # 自动生成的文章索引
-│   └── images/                # 像素风纹理、头像和站点图标
+│   └── images/                # 纹理、头像和站点图标
 └── tools/
     ├── convert.js             # Markdown 笔记转文章页并生成索引
     └── textures.py            # 生成像素风 PNG 素材
@@ -99,4 +99,4 @@ python -m http.server 8000
 - 修改主题、布局和响应式样式时编辑 `assets/css/style.css`。
 - 修改首页搜索、筛选或统计逻辑时编辑 `assets/js/script.js`。
 - 修改文章页目录、进度条、复制按钮或文章导航时编辑 `assets/js/article.js`。
-- 新增或替换像素素材后，将文件放入 `assets/images/`，并在页面或样式中引用。
+- 新增或替换视觉素材后，将文件放入 `assets/images/`，并在页面或样式中引用。

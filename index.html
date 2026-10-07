@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Akira 的学习笔记库 - 课程笔记、论文笔记与读书笔记">
     <meta name="keywords" content="学习笔记, CS61B, Java, 置身事内, 读书笔记, 论文笔记">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#f6f2ea">
     <title>Akira's Notes - 学习笔记库</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="icon" href="assets/images/favicon.png">
     <script>
@@ -54,32 +51,25 @@
         </div>
     </nav>
 
-    <!-- 简介:方块世界的天空 -->
+    <!-- 首屏：学习档案的入口 -->
     <section id="home" class="intro" data-nav>
-        <div class="mc-scene" aria-hidden="true">
-            <div class="mc-sun"></div>
-            <div class="mc-cloud c1"></div>
-            <div class="mc-cloud c2"></div>
-            <div class="mc-cloud c3"></div>
-            <div class="mc-tree">
-                <div class="leaf l1"></div>
-                <div class="leaf l2"></div>
-                <div class="leaf l3"></div>
-                <div class="leaf l4"></div>
-                <div class="trunk t1"></div>
-                <div class="trunk t2"></div>
+        <div class="container intro-grid" data-reveal>
+            <div class="intro-copy">
+                <div class="intro-kicker">FIELD NOTES / 2026</div>
+                <h1>把学过的东西，<em>讲成自己的话。</em></h1>
+                <p>课程、读书与长期思考的个人档案。每一篇笔记都从一个问题开始，最后落成可以回看的结构。</p>
+                <div class="intro-actions">
+                    <a class="mc-cta" href="#posts">浏览最新笔记 <span aria-hidden="true">↗</span></a>
+                    <span class="intro-note">写给未来的自己<br>也写给正在学习的人</span>
+                </div>
             </div>
-            <div class="mc-block b1"></div>
-            <div class="mc-block b2"></div>
-            <div class="mc-block b3"></div>
-            <img class="mc-creeper" src="assets/images/creeper.png" alt="">
-        </div>
-        <div class="container" data-reveal>
-            <h1>把学过的东西,讲成自己的话</h1>
-            <div class="mc-splash" aria-hidden="true">能讲清楚,才算学会!</div>
-            <p>这里是我的学习档案库。跟课的课程笔记、读论文的论文笔记、读书的读书笔记,都按"有逻辑链条 + 带自己思考"的方式整理。</p>
-            <a class="mc-cta" href="#posts">开始阅读</a>
-            <div class="intro-stats" id="heroStats"></div>
+            <aside class="intro-index" aria-label="站点统计">
+                <div class="intro-index-head"><span>ARCHIVE CARD</span><span>01—06</span></div>
+                <div class="intro-stats" id="heroStats"></div>
+                <div class="intro-index-rule"></div>
+                <p>按时间浏览，沿着系列回看。这里不追求把一切都记下来，只留下真正想再次理解的东西。</p>
+                <div class="intro-stamp">AKIRA / 06</div>
+            </aside>
         </div>
     </section>
 
