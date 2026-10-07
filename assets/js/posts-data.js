@@ -1,6 +1,25 @@
 // 由 tools/convert.js 自动生成,请勿手动编辑
 window.ALL_POSTS = [
     {
+        "slug": "learning-in-llm-age-zh",
+        "title": "LLM 时代，如何继续学习：把 AI 当导师，而不是答案机器（译）",
+        "date": "2026-10-07",
+        "category": "专题笔记",
+        "collection": "LLM 时代的学习方法",
+        "series": "LLM 时代的学习方法 · 译文",
+        "tags": [
+            "LLM",
+            "学习方法",
+            "编程学习",
+            "AI工具",
+            "翻译"
+        ],
+        "emoji": "🧠",
+        "excerpt": "Oğuzhan Olguncu 谈如何在 LLM 时代继续学习：让 AI 提问而不是代写，提前拆解项目，让进展可见，并用短时段、持续的练习保留真正理解。",
+        "minutes": 12,
+        "url": "posts/learning-in-llm-age-zh.html"
+    },
+    {
         "slug": "probability-paradoxes",
         "title": "概率论学习笔记：12 个经典问题与建模误区",
         "date": "2026-10-07",
